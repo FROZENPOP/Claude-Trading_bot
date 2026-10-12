@@ -1,0 +1,54 @@
+# Stock Discovery Configuration for Autonomous Options Trading Bot
+# Enhanced to use all discovery sources and increased capacity
+
+# Discovery source selection
+use_universe: true      # Stocks from predefined universe.yaml
+use_most_active: true   # Most actively traded stocks by volume
+use_market_movers: true # Top gaining/losing stocks
+use_news: true          # Stocks mentioned in financial news
+
+# Maximum number of stocks to screen per cycle
+# Increased from 50 to 100 to accommodate expanded universe
+max_stocks: 100
+
+# Most active stocks configuration
+most_active:
+  lookback_days: 1      # Check last trading day for volume
+  min_volume: 1000000   # Minimum daily volume to consider
+  max_stocks: 30        # Maximum most active stocks to include
+
+# Market movers configuration
+market_movers:
+  change_threshold: 0.05    # Minimum 5% price change to qualify
+  max_stocks: 20            # Maximum market movers to include
+  lookback_hours: 4         # Look back 4 hours for price changes
+
+# News-based discovery configuration
+news:
+  lookback_hours: 24        # Look back 24 hours for news
+  max_stocks: 20            # Maximum news-mentioned stocks to include
+  min_articles: 2           # Minimum number of articles for relevance
+  sources:                  # News sources to monitor
+    - bloomberg
+    - reuters
+    - cnbc
+    - marketwatch
+    - yahoo_finance
+
+# Universe filtering (when use_universe: true)
+universe:
+  # No additional filtering - use all stocks from universe.yaml
+  # Set to false to disable universe filtering entirely
+  enabled: true
+
+# Duplicate handling
+# When a stock appears in multiple sources, it's only screened once
+deduplicate: true
+
+# Priority weighting for mixed sources (higher = higher priority)
+# Used when max_stocks limit is reached and we need to choose
+source_priority:
+  universe: 3       # Predefined universe gets medium priority
+  most_active: 2    # Most active gets lower priority (more volatile)
+  market_movers: 1  # Market movers gets lowest priority (can be noisy)
+  news: 4           # News gets highest priority (fundamental catalyst)

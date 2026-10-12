@@ -1,0 +1,41 @@
+# Configuration for Phase 4: Option Opportunity Generation
+# This file controls the parameters for generating options opportunities
+
+opportunity_generation:
+  # Minimum expected return as fraction of premium (5% minimum)
+  min_premium_return: 0.05
+
+  # Maximum and minimum days to expiry for considered options
+  max_days_to_expiry: 45
+  min_days_to_expiry: 7
+
+  # Minimum signal confidence for opportunity consideration (60%)
+  min_confidence_score: 0.6
+
+  # Maximum number of opportunities to return for Phase 5
+  max_opportunities: 10
+
+  # Strategy-specific configurations
+  strategies:
+    bull_call_spread:
+      enabled: true
+      max_spread_width: 10  # Maximum strike width in dollars
+      min_credit_return: 0.03  # Minimum 3% return for credit spreads
+
+    bear_put_spread:
+      enabled: true
+      max_spread_width: 10
+      min_credit_return: 0.03
+
+    iron_condor:
+      enabled: false  # Disabled for initial implementation
+      max_wing_width: 15
+      min_credit_return: 0.02
+
+    cash_secured_put:
+      enabled: true
+      min_annualized_return: 0.12  # Minimum 12% annualized return
+
+    covered_call:
+      enabled: true
+      min_annualized_return: 0.10  # Minimum 10% annualized return

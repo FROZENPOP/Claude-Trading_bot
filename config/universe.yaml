@@ -1,0 +1,147 @@
+# Stock Universe Configuration for Autonomous Options Trading Bot
+# Expanded to 100 stocks across 10 sectors for better diversification
+
+# Large Cap Technology (15 stocks)
+Technology:
+  - AAPL   # Apple Inc.
+  - MSFT   # Microsoft Corporation
+  - NVDA   # NVIDIA Corporation
+  - AMZN   # Amazon.com Inc.
+  - META   # Meta Platforms Inc.
+  - GOOGL  # Alphabet Inc. (Class A)
+  - GOOG   # Alphabet Inc. (Class C)
+  - TSLA   # Tesla Inc.
+  - NFLX   # Netflix Inc.
+  - ADBE   # Adobe Inc.
+  - CRM    # Salesforce Inc.
+  - ORCL   # Oracle Corporation
+  - CSCO   # Cisco Systems Inc.
+  - INTC   # Intel Corporation
+  - AMD    # Advanced Micro Devices Inc.
+
+# Large Cap Finance (12 stocks)
+Finance:
+  - JPM    # JPMorgan Chase & Co.
+  - BAC    # Bank of America Corp.
+  - WFC    # Wells Fargo & Company
+  - C      # Citigroup Inc.
+  - GS     # Goldman Sachs Group Inc.
+  - MS     # Morgan Stanley
+  - V      # Visa Inc.
+  - MA     # Mastercard Inc.
+  - AXP    # American Express Company
+  - BLK    # BlackRock Inc.
+  - SCHW   # Charles Schwab Corporation
+  - USB    # U.S. Bancorp
+
+# Large Cap Consumer Cyclical (10 stocks)
+Consumer_Cyclical:
+  - HD     # Home Depot Inc.
+  - MCD    # McDonald's Corporation
+  - SBUX   # Starbucks Corporation
+  - TSLA   # Tesla Inc. (also in Technology)
+  - LOW    # Lowe's Companies Inc.
+  - TJX    # TJX Companies Inc.
+  - CMG    # Chipotle Mexican Grill Inc.
+  - BKNG   # Booking Holdings Inc.
+  - ROST   # Ross Stores Inc.
+  - ULTA   # Ulta Beauty Inc.
+
+# Large Cap Consumer Defensive (8 stocks)
+Consumer_Defensive:
+  - PG     # Procter & Gamble Co.
+  - KO     # Coca-Cola Company
+  - PEP    # PepsiCo Inc.
+  - WMT    # Walmart Inc.
+  - COST   # Costco Wholesale Corporation
+  - CL     # Colgate-Palmolive Company
+  - KMB    # Kimberly-Clark Corporation
+  - GIS    # General Mills Inc.
+
+# Large Cap Healthcare (10 stocks)
+Healthcare:
+  - UNH    # UnitedHealth Group Inc.
+  - JNJ    # Johnson & Johnson
+  - PFE    # Pfizer Inc.
+  - ABBV   # AbbVie Inc.
+  - MRK    # Merck & Co. Inc.
+  - TMO    # Thermo Fisher Scientific Inc.
+  - ABT    # Abbott Laboratories
+  - DHR    # Danaher Corporation
+  - BMY    # Bristol-Myers Squibb Company
+  - AMGN   # Amgen Inc.
+
+# Large Cap Industrial (10 stocks)
+Industrial:
+  - CAT    # Caterpillar Inc.
+  - BA     # Boeing Company
+  - GE     # General Electric Company
+  - MMH    # 3M Company
+  - UPS    # United Parcel Service Inc.
+  - RTX    # Raytheon Technologies Corp.
+  - LMT    # Lockheed Martin Corporation
+  - HON    # Honeywell International Inc.
+  - DE     # Deere & Company
+  - FDX    # FedEx Corporation
+
+# Energy (8 stocks)
+Energy:
+  - XOM    # Exxon Mobil Corporation
+  - CVX    # Chevron Corporation
+  - COP    # ConocoPhillips
+  - EOG    # EOG Resources Inc.
+  - PSX    # Phillips 66
+  - VLO    # Valero Energy Corporation
+  - OXY    # Occidental Petroleum Corp.
+  - SLB    # Schlumberger Limited
+
+# Materials (6 stocks)
+Materials:
+  - LIN    # Linde plc
+  - APD    # Air Products and Chemicals Inc.
+  - FCX    # Freeport-McMoRan Inc.
+  - NEM    # Newmont Corporation
+  - DD     # DuPont de Nemours Inc.
+  - PPG    # PPG Industries Inc.
+
+# Utilities (6 stocks)
+Utilities:
+  - NEE    # NextEra Energy Inc.
+  - DUK    # Duke Energy Corporation
+  - SO     # Southern Company
+  - D      # Dominion Energy Inc.
+  - ALE    # Allete Inc.
+  - PCG    # PG&E Corporation
+
+# Real Estate (6 stocks)
+Real_Estate:
+  - PLD    # Prologis Inc.
+  - PSA    # Public Storage
+  - EQIX   # Equinix Inc.
+  - AVB    # AvalonBay Communities Inc.
+  - VTR    # Ventas Inc.
+  - O      # Realty Income Corporation
+
+# Telecommunications (4 stocks)
+Telecommunications:
+  - VZ     # Verizon Communications Inc.
+  - T      # AT&T Inc.
+  - CHTR   # Charter Communications Inc.
+  - TMUS   # T-Mobile US Inc.
+
+# Mid-Cap Growth (5 stocks)
+Mid_Cap_Growth:
+  - MRNA   # Moderna Inc.
+  - PLTR   # Palantir Technologies Inc.
+  - SNOW   # Snowflake Inc.
+  - CRWD   # CrowdStrike Holdings Inc.
+  - DDOG   # Datadog Inc.
+
+# ETFs (6 stocks)
+ETFs:
+  - SPY    # SPDR S&P 500 ETF Trust
+  - QQQ    # Invesco QQQ Trust
+  - IWM    # iShares Russell 2000 ETF
+  - VTI    # Vanguard Total Stock Market ETF
+  - VOO    # Vanguard S&P 500 ETF
+  - VUG    # Vanguard Growth ETF

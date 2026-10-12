@@ -1,0 +1,1 @@
+"""Strategy signal calculations package."""

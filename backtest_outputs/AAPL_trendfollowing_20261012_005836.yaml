@@ -1,0 +1,1607 @@
+buy_and_hold_return: !!python/object/apply:numpy._core.multiarray.scalar
+- &id001 !!python/object/apply:numpy.dtype
+  args:
+  - f8
+  - false
+  - true
+  state: !!python/tuple
+  - 3
+  - <
+  - null
+  - null
+  - null
+  - -1
+  - -1
+  - 0
+- !!binary |
+  tEBn03Mz6D8=
+daily_values:
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1514869200
+  - null
+  - &id002 !!python/object/apply:None._unpickle
+    - America/New_York
+    - 1
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - &id003 !!python/object/apply:numpy.dtype
+    args:
+    - i8
+    - false
+    - true
+    state: !!python/tuple
+    - 3
+    - <
+    - null
+    - null
+    - null
+    - -1
+    - -1
+    - 0
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1514955600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1515042000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1515128400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1515387600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1515474000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1515560400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1515646800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1515733200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1516078800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1516165200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1516251600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1516338000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1516597200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1516683600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1516770000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1516856400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1516942800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1517202000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1517288400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1517374800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1517461200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1517547600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1517806800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1517893200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1517979600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1518066000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1518152400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1518411600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1518498000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1518584400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1518670800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1518757200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1519102800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1519189200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1519275600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1519362000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1519621200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1519707600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1519794000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1519880400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1519966800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1520226000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1520312400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1520398800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1520485200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1520571600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1520827200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1520913600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1521000000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1521086400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1521172800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1521432000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1521518400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1521604800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1521691200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1521777600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1522036800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1522123200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1522209600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1522296000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1522641600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1522728000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1522814400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1522900800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1522987200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1523246400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1523332800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1523419200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1523505600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1523592000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1523851200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1523937600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1524024000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1524110400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1524196800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1524456000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1524542400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1524628800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1524715200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1524801600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1525060800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1525147200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1525233600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1525320000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1525406400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1525665600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1525752000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1525838400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1525924800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1526011200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1526270400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1526356800
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1526443200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1526529600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1526616000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1526875200
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1526961600
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1527048000
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+- composite_score: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_return: 0.0
+  date: !!python/object/apply:pandas._libs.tslibs.timestamps._unpickle_timestamp
+  - 1527134400
+  - null
+  - *id002
+  - 7
+  portfolio_value: 100000
+  signal: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id003
+  - !!binary |
+    AAAAAAAAAAA=
+excess_return: !!python/object/apply:numpy._core.multiarray.scalar
+- *id001
+- !!binary |
+  tEBn03Mz6L8=
+metrics:
+  annualized_return: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAAAAA=
+  annualized_volatility: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAAAAA=
+  average_daily_return: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAAAAA=
+  avg_drawdown: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAAAAA=
+  beta: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAA+H8=
+  daily_volatility: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAAAAA=
+  information_ratio: 0
+  max_drawdown: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAAAAA=
+  max_drawdown_date: 0
+  num_trading_days: 503
+  sharpe_ratio: 0
+  sortino_ratio: 0
+  total_return: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAAAAA=
+num_trades: 0
+parameters:
+  bid_ask_spread_bps: 2.0
+  commission: 0.0
+  entry_threshold: 0.5
+  exit_threshold: -0.3
+  initial_capital: 100000
+  slippage_bps: 5.0
+  strategy: TrendFollowingStrategy
+period:
+  end: '2019-12-31'
+  start: '2018-01-01'
+profit_factor: 0
+summary:
+  annualized_return: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAAAAA=
+  end_value: 100000
+  max_drawdown: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAAAAA=
+  sharpe_ratio: 0
+  start_value: 100000
+  total_return: !!python/object/apply:numpy._core.multiarray.scalar
+  - *id001
+  - !!binary |
+    AAAAAAAAAAA=
+symbol: AAPL
+trades: 0
+win_rate: 0

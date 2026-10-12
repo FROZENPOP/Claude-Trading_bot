@@ -1,0 +1,26 @@
+# Pre-defined parameter grid (no free optimization)
+moving_averages:
+  - [20, 50]
+  - [30, 100]
+  - [50, 150]
+  - [50, 200]
+
+momentum_lookbacks:
+  - 21   # ~1 month
+  - 63   # ~3 months
+  - 126  # ~6 months
+  - 252  # ~12 months
+
+entry_thresholds:
+  - 0.3
+  - 0.4
+  - 0.5
+  - 0.6
+  - 0.7
+
+exit_thresholds:
+  - -0.5
+  - -0.4
+  - -0.3
+  - -0.2
+  - -0.1

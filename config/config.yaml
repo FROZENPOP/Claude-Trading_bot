@@ -1,0 +1,37 @@
+data:
+  symbols: ["AAPL"]
+  start_date: "2010-01-01"
+  end_date: "2026-10-03"
+  source: "yfinance"
+
+backtest:
+  initial_capital: 100000
+  train_start: "2015-01-01"
+  train_end: "2020-12-31"
+  val_start: "2021-01-01"
+  val_end: "2022-12-31"
+  test_start: "2023-01-01"
+  test_end: "2026-09-30"
+
+risk:
+  target_volatility: 0.15
+  max_position_size: 0.10
+  max_portfolio_exposure: 1.0
+  max_daily_loss: 0.05
+  max_drawdown: 0.15
+  max_open_positions: 1
+
+costs:
+  commission: 0.0
+  slippage_bps: 5.0
+  bid_ask_spread_bps: 2.0
+
+strategy:
+  entry_threshold: 0.5
+  exit_threshold: -0.3
+  signal_weights:
+    short_ma: 0.25
+    medium_ma: 0.25
+    momentum: 0.25
+    price_relative: 0.15
+    vol_adjusted: 0.10
