@@ -18,6 +18,7 @@ from typing import Optional
 from dataclasses import dataclass
 import logging
 from dotenv import load_dotenv
+import time
 
 # Load environment variables from .env file
 load_dotenv()
@@ -99,6 +100,20 @@ class WebullExecution:
         self.max_daily_loss = max_daily_loss
         self.max_position_size = max_position_size
         self.max_daily_trades = max_daily_trades
+
+        # Reliability attributes
+        self.max_retries = 3
+        self.base_delay = 1.0
+        self.max_delay = 30.0
+        self.failure_threshold = 5
+        self.recovery_timeout = 60.0
+        self.order_poll_interval = 2.0
+        self.order_poll_timeout = 30.0
+        self.reconciliation_interval = 30.0
+        self.max_failed_orders = 100
+        self.failed_orders = []
+        self.failure_count = 0
+        self.last_failure_time = None
 
         logger.info(f"WebullExecution initialized (paper={paper})")
 
@@ -234,118 +249,132 @@ class WebullExecution:
                 account_blocked=False
             )
 
-    def submit_order(self, order_request: OrderRequest):
-        """Submit an order to Webull.
+    def submit_order(self, symbol: str, side: str, quantity: float, order_type: str = "Market",
+                     limit_price: float = None, stop_price: float = None, time_in_force: str = "Day"):
+        """Submit an order with reliability improvements including retry mechanism, circuit breaker,
+        order status polling, and state reconciliation.
 
         Args:
-            order_request: Order to submit
+            symbol: Stock symbol to trade
+            side: Order side ('Buy' or 'Sell')
+            quantity: Number of shares to trade
+            order_type: Type of order ('Market', 'Limit', 'Stop', 'StopLimit')
+            limit_price: Limit price for limit orders
+            stop_price: Stop price for stop orders
+            time_in_force: Time in force ('Day', 'GTC')
 
         Returns:
-            Tuple of (success, error_message, order_object)
+            Tuple of (success, order_id or error_message)
         """
-        try:
-            # Pre-order verification
-            if not self._verify_market_open():
-                return False, "Market is not open", None
+        # Check circuit breaker
+        if self._is_circuit_open():
+            error_msg = "Circuit breaker is open - refusing to submit order"
+            logger.warning(error_msg)
+            return False, error_msg
 
-            account_info = self.get_account_info()
-            if account_info.trading_blocked or account_info.account_blocked:
-                return False, "Account is not available for trading", None
-
-            # Check for duplicate orders (simplified)
-            # In a real implementation, we'd check recent orders
-
-            # Calculate required buying power
-            # This is a simplified calculation
-            required_capital = abs(order_request.qty) * (order_request.limit_price or 0)
-            if required_capital > account_info.buying_power:
-                return False, f"Insufficient buying power: need {required_capital}, have {account_info.buying_power}", None
-
-            # Submit order via MCP
-            # Note: This is a simplified version - real implementation would handle
-            # different order types, etc. via appropriate MCP calls
-            if order_request.order_type.lower() == "market":
-                if order_request.side.lower() == "buy":
-                    order_result = mcp__webull__place_stock_order(
-                        symbol=order_request.symbol,
-                        side="buy",
-                        order_type="market",
-                        time_in_force=order_request.time_in_force,
-                        quantity=abs(order_request.qty)
-                    )
-                else:
-                    order_result = mcp__webull__place_stock_order(
-                        symbol=order_request.symbol,
-                        side="sell",
-                        order_type="market",
-                        time_in_force=order_request.time_in_force,
-                        quantity=abs(order_request.qty)
-                    )
-            elif order_request.order_type.lower() == "limit":
-                if order_request.side.lower() == "buy":
-                    order_result = mcp__webull__place_stock_order(
-                        symbol=order_request.symbol,
-                        side="buy",
-                        order_type="limit",
-                        time_in_force=order_request.time_in_force,
-                        quantity=abs(order_request.qty),
-                        limit_price=order_request.limit_price
-                    )
-                else:
-                    order_result = mcp__webull__place_stock_order(
-                        symbol=order_request.symbol,
-                        side="sell",
-                        order_type="limit",
-                        time_in_force=order_request.time_in_force,
-                        quantity=abs(order_request.qty),
-                        limit_price=order_request.limit_price
-                    )
-            else:
-                # For other order types, default to market for now
-                logger.warning(f"Order type {order_request.order_type} not fully implemented, defaulting to market")
-                if order_request.side.lower() == "buy":
-                    order_result = mcp__webull__place_stock_order(
-                        symbol=order_request.symbol,
-                        side="buy",
-                        order_type="market",
-                        time_in_force=order_request.time_in_force,
-                        quantity=abs(order_request.qty)
-                    )
-                else:
-                    order_result = mcp__webull__place_stock_order(
-                        symbol=order_request.symbol,
-                        side="sell",
-                        order_type="market",
-                        time_in_force=order_request.time_in_force,
-                        quantity=abs(order_request.qty)
-                    )
-
-            if order_result and 'data' in order_result:
-                order_data = order_result['data']
-                # Create Webull order object
-                order = WebullOrder(
-                    id=order_data.get('order_id', ''),
-                    client_order_id=order_request.client_order_id or '',
-                    symbol=order_data.get('symbol', ''),
-                    side=order_data.get('side', ''),
-                    order_type=order_data.get('order_type', 'market'),
-                    qty=abs(order_request.qty),
-                    filled_qty=0,  # Would be filled from actual response
-                    price=order_data.get('limit_price'),
-                    avg_fill_price=0.0,
-                    status=order_data.get('status', 'new'),
-                    time_in_force=order_data.get('time_in_force', 'day'),
-                    created_at=datetime.now(),
-                    updated_at=datetime.now()
+        # Retry loop with exponential backoff
+        for attempt in range(self.max_retries + 1):
+            try:
+                # Submit order via MCP
+                order_result = mcp__webull__place_stock_order(
+                    symbol=symbol,
+                    side=side,
+                    quantity=quantity,
+                    order_type=order_type,
+                    limit_price=limit_price,
+                    stop_price=stop_price,
+                    time_in_force=time_in_force,
+                    extended_hours=False  # Regular trading hours only for paper trading
                 )
-                return True, None, order
-            else:
-                logger.error(f"Failed to place order: {order_result}")
-                return False, "Failed to place order", None
 
-        except Exception as e:
-            logger.error(f"Error submitting order: {e}")
-            return False, str(e), None
+                # Check if order was submitted successfully
+                if order_result and 'data' in order_result:
+                    order_data = order_result['data']
+                    if order_data and 'order_id' in order_data:
+                        order_id = order_data['order_id']
+                        logger.info(f"Order submitted successfully: {order_id}")
+
+                        # Record success for circuit breaker
+                        self._record_success()
+
+                        # Poll order status to confirm execution
+                        final_status, status_error = self._poll_order_status(order_id)
+                        if status_error:
+                            logger.warning(f"Order submitted but status polling failed: {status_error}")
+                            # Still return success since order was submitted
+                            return True, order_id
+
+                        # Reconcile internal state with broker state
+                        reconciliation_error = self._reconcile_order_state(order_id, final_status)
+                        if reconciliation_error:
+                            logger.warning(f"Order submitted but reconciliation failed: {reconciliation_error}")
+                            # Still return success since order was submitted
+                            return True, order_id
+
+                        return True, order_id
+                    else:
+                        error_msg = "Order submitted but no order ID returned"
+                        logger.error(error_msg)
+                        if attempt < self.max_retries and self._should_retry(Exception(error_msg)):
+                            delay = self._calculate_delay(attempt)
+                            logger.info(f"Retrying in {delay} seconds... (Attempt {attempt + 1}/{self.max_retries + 1})")
+                            time.sleep(delay)
+                            continue
+                        else:
+                            self._record_failure()
+                            self._add_to_dead_letter_queue({
+                                'symbol': symbol,
+                                'side': side,
+                                'quantity': quantity,
+                                'order_type': order_type,
+                                'error': error_msg,
+                                'timestamp': datetime.now().isoformat()
+                            })
+                            return False, error_msg
+                else:
+                    error_msg = "Failed to submit order - no data returned"
+                    logger.error(error_msg)
+                    if attempt < self.max_retries and self._should_retry(Exception(error_msg)):
+                        delay = self._calculate_delay(attempt)
+                        logger.info(f"Retrying in {delay} seconds... (Attempt {attempt + 1}/{self.max_retries + 1})")
+                        time.sleep(delay)
+                        continue
+                    else:
+                        self._record_failure()
+                        self._add_to_dead_letter_queue({
+                            'symbol': symbol,
+                            'side': side,
+                            'quantity': quantity,
+                            'order_type': order_type,
+                            'error': error_msg,
+                            'timestamp': datetime.now().isoformat()
+                        })
+                        return False, error_msg
+
+            except Exception as e:
+                error_msg = f"Exception submitting order: {str(e)}"
+                logger.error(error_msg)
+                if attempt < self.max_retries and self._should_retry(e):
+                    delay = self._calculate_delay(attempt)
+                    logger.info(f"Retrying in {delay} seconds... (Attempt {attempt + 1}/{self.max_retries + 1})")
+                    time.sleep(delay)
+                    continue
+                else:
+                    self._record_failure()
+                    self._add_to_dead_letter_queue({
+                        'symbol': symbol,
+                        'side': side,
+                        'quantity': quantity,
+                        'order_type': order_type,
+                        'error': error_msg,
+                        'timestamp': datetime.now().isoformat()
+                    })
+                    return False, error_msg
+
+        # If we've exhausted all retries
+        error_msg = f"Failed to submit order after {self.max_retries + 1} attempts"
+        logger.error(error_msg)
+        return False, error_msg
 
     def cancel_order(self, order_id: str):
         """Cancel an order.
@@ -385,6 +414,185 @@ class WebullExecution:
         except Exception as e:
             logger.debug(f"Error checking market hours: {e}")
             return False
+
+
+    def _should_retry(self, exception: Exception) -> bool:
+        """Determine if an exception is retryable.
+
+        Args:
+            exception: The exception to check
+
+        Returns:
+            True if the exception is retryable, False otherwise
+        """
+        # Don't retry if we've exceeded max retries (handled by caller)
+        # Define which exceptions are retryable
+        if isinstance(exception, (ConnectionError, TimeoutError)):
+            return True
+        # Check for Webull-specific retryable errors
+        error_str = str(exception).lower()
+        retryable_indicators = [
+            "network",
+            "timeout",
+            "connection",
+            "temporary",
+            "server error",
+            "service unavailable",
+            "gateway timeout"
+        ]
+        return any(indicator in error_str for indicator in retryable_indicators)
+
+    def _calculate_delay(self, attempt: int) -> float:
+        """Calculate delay for exponential backoff with jitter.
+
+        Args:
+            attempt: Current attempt number (0-indexed)
+
+        Returns:
+            Delay in seconds
+        """
+        # Exponential backoff: base_delay * (2 ^ attempt)
+        delay = self.base_delay * (2 ** attempt)
+        # Apply maximum delay limit
+        delay = min(delay, self.max_delay)
+        # Add jitter to prevent thundering herd
+        import random
+        jitter = random.uniform(0, 0.1) * delay
+        return delay + jitter
+
+    def _is_circuit_open(self) -> bool:
+        """Check if the circuit breaker is open.
+
+        Returns:
+            True if circuit breaker is open, False otherwise
+        """
+        # If we haven't reached failure threshold, circuit is closed
+        if self.failure_count < self.failure_threshold:
+            return False
+
+        # If circuit has been open for less than recovery timeout, stay open
+        if self.last_failure_time:
+            time_since_failure = time.time() - self.last_failure_time
+            if time_since_failure < self.recovery_timeout:
+                return True
+            else:
+                # Recovery timeout has passed, try half-open state
+                logger.info("Circuit breaker attempting recovery")
+                return False
+
+        return False
+
+    def _record_failure(self):
+        """Record a failure for circuit breaker tracking."""
+        self.failure_count += 1
+        self.last_failure_time = time.time()
+        logger.warning(f"Recorded failure. Count: {self.failure_count}/{self.failure_threshold}")
+
+    def _record_success(self):
+        """Record a success for circuit breaker tracking."""
+        # Reset failure count on success
+        if self.failure_count > 0:
+            logger.info(f"Recording success. Resetting failure count from {self.failure_count}")
+        self.failure_count = 0
+        self.last_failure_time = None
+
+    def _get_order_status_from_webull(self, order_id: str) -> tuple:
+        """Get order status from Webull.
+
+        Args:
+            order_id: ID of order to check
+
+        Returns:
+            Tuple of (status, error_message)
+        """
+        try:
+            # Get order details via MCP
+            order_result = mcp__webull__get_order_by_id(
+                order_id=order_id
+            )
+
+            if order_result and 'data' in order_result:
+                order_data = order_result['data']
+                if order_data:
+                    status = order_data.get('status', 'unknown')
+                    return status, None
+                else:
+                    return 'unknown', 'No order data returned'
+            else:
+                return 'unknown', 'Failed to get order details'
+        except Exception as e:
+            return 'unknown', f'Exception getting order status: {str(e)}'
+
+    def _poll_order_status(self, order_id: str) -> tuple:
+        """Poll order status until final status or timeout.
+
+        Args:
+            order_id: ID of order to poll
+
+        Returns:
+            Tuple of (final_status, error_message)
+        """
+        start_time = time.time()
+
+        while time.time() - start_time < self.order_poll_timeout:
+            status, error = self._get_order_status_from_webull(order_id)
+            if error:
+                logger.debug(f"Error polling order status: {error}")
+                time.sleep(self.order_poll_interval)
+                continue
+
+            # Check if order has reached a final status
+            final_statuses = ['filled', 'cancelled', 'rejected', 'expired']
+            if status in final_statuses:
+                return status, None
+
+            # Wait before polling again
+            time.sleep(self.order_poll_interval)
+
+        # Timeout reached
+        return 'unknown', f'Order status polling timeout after {self.order_poll_timeout} seconds'
+
+    def _reconcile_order_state(self, order_id: str, broker_status: str) -> str:
+        """Reconcile internal order state with broker state.
+
+        Args:
+            order_id: ID of order to reconcile
+            broker_status: Status from Webull broker
+
+        Returns:
+            Error message if reconciliation fails, None if successful
+        """
+        try:
+            # Check if we have internal tracking for this order
+            # In a full implementation, we'd check our internal order tracking
+            # For now, we'll just verify the order exists and has a reasonable status
+
+            valid_statuses = [
+                'new', 'partially_filled', 'filled',
+                'cancelled', 'rejected', 'expired'
+            ]
+
+            if broker_status not in valid_statuses:
+                return f'Invalid order status from broker: {broker_status}'
+
+            # Additional reconciliation logic could go here
+            # For example, checking if our internal state matches broker state
+
+            return None  # Reconciliation successful
+        except Exception as e:
+            return f'Exception during reconciliation: {str(e)}'
+
+    def _add_to_dead_letter_queue(self, order_info: dict):
+        """Add failed order to dead letter queue for analysis.
+
+        Args:
+            order_info: Dictionary containing order information and error details
+        """
+        self.failed_orders.append(order_info)
+        # Keep only the most recent failed orders
+        if len(self.failed_orders) > self.max_failed_orders:
+            self.failed_orders = self.failed_orders[-self.max_failed_orders:]
+        logger.warning(f"Added order to dead letter queue. Total failed orders: {len(self.failed_orders)}")
 
 
 # Webull position class
