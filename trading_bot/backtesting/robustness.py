@@ -6,7 +6,10 @@ from typing import Optional, List, Dict, Tuple, Any
 from dataclasses import dataclass
 import random
 import warnings
+import logging
 from scipy import stats
+
+logger = logging.getLogger(__name__)
 
 from trading_bot.strategies.composite_score import CompositeTrendScore
 from trading_bot.strategies.trend_following import TrendFollowingStrategy
@@ -112,7 +115,7 @@ class ParameterSensitivity:
             )
             results.append(result)
 
-            print(f"  MA{short_window}/{long_window}: "
+            logger.info(f"  MA{short_window}/{long_window}: "
                   f"Return={result.total_return:.1%}, "
                   f"Sharpe={result.sharpe_ratio:.2f}, "
                   f"MaxDD={result.max_drawdown:.1%}")
@@ -172,7 +175,7 @@ class ParameterSensitivity:
             )
             results.append(result)
 
-            print(f"  Momentum{lookback}d: "
+            logger.info(f"  Momentum{lookback}d: "
                   f"Return={result.total_return:.1%}, "
                   f"Sharpe={result.sharpe_ratio:.2f}")
 
@@ -326,7 +329,7 @@ class ParameterSensitivity:
                         results.append(result)
 
                     except Exception as e:
-                        print(f"  Warning: Failed to test VS config w{max_spread_width}_d{preferred_delta_range}_dte{preferred_dte}: {e}")
+                        logger.warning(f"  Warning: Failed to test VS config w{max_spread_width}_d{preferred_delta_range}_dte{preferred_dte}: {e}")
                         continue
 
         return results
@@ -370,7 +373,7 @@ class ParameterSensitivity:
                     results.append(result)
 
                 except Exception as e:
-                    print(f"  Warning: Failed to test CC config otm{otm_pct}_dte{dte}: {e}")
+                    logger.warning(f"  Warning: Failed to test CC config otm{otm_pct}_dte{dte}: {e}")
                     continue
 
         return results
@@ -414,7 +417,7 @@ class ParameterSensitivity:
                     results.append(result)
 
                 except Exception as e:
-                    print(f"  Warning: Failed to test CSP config otm{otm_pct}_dte{dte}: {e}")
+                    logger.warning(f"  Warning: Failed to test CSP config otm{otm_pct}_dte{dte}: {e}")
                     continue
 
         return results
@@ -481,7 +484,7 @@ class ParameterSensitivity:
                         results.append(result)
 
                     except Exception as e:
-                        print(f"  Warning: Failed to test IC config w{wing_width}_d{delta_target}_dte{dte}: {e}")
+                        logger.warning(f"  Warning: Failed to test IC config w{wing_width}_d{delta_target}_dte{dte}: {e}")
                         continue
 
         return results
@@ -550,7 +553,7 @@ class ParameterSensitivity:
                         results.append(result)
 
                     except Exception as e:
-                        print(f"  Warning: Failed to test CS config sd{short_dte}_ld{long_dte}_dt{delta_target}: {e}")
+                        logger.warning(f"  Warning: Failed to test CS config sd{short_dte}_ld{long_dte}_dt{delta_target}: {e}")
                         continue
 
         return results
@@ -923,7 +926,7 @@ def walk_forward_analysis(
             })
 
         except Exception as e:
-            print(f"Warning: Walk-forward window {start_idx}-{test_end} failed: {e}")
+            logger.warning(f"Warning: Walk-forward window {start_idx}-{test_end} failed: {e}")
 
         # Move to next window
         start_idx += step_size
@@ -1010,7 +1013,7 @@ def monte_carlo_simulation(
             simulation_returns.append(result_dict.get('total_return', 0))
 
         except Exception as e:
-            print(f"Warning: Monte Carlo simulation {sim_idx} failed: {e}")
+            logger.warning(f"Warning: Monte Carlo simulation {sim_idx} failed: {e}")
             simulation_returns.append(0.0)  # Failed simulation gets zero return
 
     # Calculate statistics

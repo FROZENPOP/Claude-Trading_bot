@@ -1,164 +1,122 @@
 #!/usr/bin/env python3
-"""Debug what the strategy's generate_spread_signals method is returning."""
+"""Debug script to test the strategy indicator calculation."""
 
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
-import sys
-import os
+from trading_bot.strategies.trend_following import TrendFollowingStrategy
 
-# Add project to path
-sys.path.append(os.path.join(os.path.dirname(__file__)))
+def create_sample_data():
+    """Create sample stock data for testing."""
+    print("Creating sample data for testing...")
 
-from research_options_strategies import OptionsDataPipeline
-from trading_bot.strategies.vertical_spread import VerticalSpreadStrategy
+    # Generate 100 days of data for simplicity
+    dates = pd.date_range(start='2024-01-01', periods=100, freq='D')
+    # Remove weekends
+    dates = dates[dates.weekday < 5]
 
-def debug_strategy_signals():
-    """Debug what the strategy's generate_spread_signals method returns."""
-    print("DEBUGGING STRATEGY GENERATE_SPREAD_SIGNALS METHOD")
-    print("=" * 60)
+    # Generate realistic price data
+    np.random.seed(42)
+    n_days = len(dates)
+    returns = np.random.normal(0.0008, 0.015, n_days)  # Slight positive drift
 
-    # Use the same pipeline as in the diagnostic backtest
-    pipeline = OptionsDataPipeline(symbol="AAPL")
+    # Add some regime changes
+    regime_change_point = n_days // 2
+    returns[regime_change_point:] += 0.0003  # Slightly better second half
 
-    # Test the same scenario as diagnostic backtest day 1
-    lookback_start = "2026-07-13"
-    end_date = "2026-09-01"
+    prices = [100.0]  # Starting price
+    for ret in returns[1:]:
+        prices.append(prices[-1] * (1 + ret))
 
-    print(f"Fetching stock data from {lookback_start} to {end_date}")
+    # Create OHLCV data with adjusted_close
+    data = []
+    for i, (date, close) in enumerate(zip(dates, prices)):
+        volatility = 0.015
+        high = close * (1 + abs(np.random.normal(0, volatility/2)))
+        low = close * (1 - abs(np.random.normal(0, volatility/2)))
+        open_price = close * (1 + np.random.normal(0, volatility/4))
+        volume = np.random.randint(500000, 5000000)
+        adjusted_close = close  # Using close as adjusted_close for simplicity
 
-    stock_data = pipeline.get_stock_data(lookback_start, end_date)
+        data.append({
+            'date': date,
+            'open': open_price,
+            'high': high,
+            'low': low,
+            'close': close,
+            'adjusted_close': adjusted_close,
+            'volume': volume,
+            'symbol': 'TEST'
+        })
 
-    if not stock_data.empty:
-        current_date = stock_data['date'].iloc[-1]
-        available_data = stock_data[stock_data['date'] <= current_date].copy()
+    df = pd.DataFrame(data)
+    print(f"Created sample data: {len(df)} days")
+    return df
 
-        print(f"Stock data shape: {stock_data.shape}")
-        print(f"Current date: {current_date}")
-        print(f"Available data points: {len(available_data)}")
+def test_strategy_indicators():
+    """Test strategy indicator calculation."""
+    print("\nTESTING STRATEGY INDICATOR CALCULATION")
+    print("=" * 50)
 
-        # Get option chain
-        option_chain = pipeline.get_option_chain_data(end_date)
-        print(f"Option chain size: {len(option_chain)} contracts")
+    # Create sample data
+    data = create_sample_data()
+    print(f"Data shape: {data.shape}")
+    print(f"Columns: {list(data.columns)}")
 
-        # Create strategy
-        strategy = VerticalSpreadStrategy('AAPL', max_risk_per_trade=0.02)
+    # Check if we have the required column
+    if 'adjusted_close' not in data.columns:
+        print("ERROR: 'adjusted_close' column missing!")
+        return False
 
-        # Call the method that diagnostic backtest calls
-        print("\nCalling strategy.generate_spread_signals...")
-        signals = strategy.generate_spread_signals(available_data, option_chain, current_date)
+    # Create strategy with smaller windows for our limited data
+    strategy = TrendFollowingStrategy(
+        short_window=5,
+        medium_window=15,
+        long_window=25,
+        entry_threshold=0.5,
+        exit_threshold=-0.3
+    )
 
-        print(f"Number of spread signals generated: {len(signals)}")
+    # Calculate indicators
+    print("Calculating indicators...")
+    try:
+        data_with_indicators = strategy.calculate_all_indicators(data.copy())
+        print("Indicators calculated successfully!")
+        print(f"Columns after calculation: {list(data_with_indicators.columns)}")
 
-        if len(signals) > 0:
-            print("Spread signals:")
-            for i, signal in enumerate(signals[:3]):  # Show first 3
-                print(f"  Signal {i+1}:")
-                print(f"    Type: {getattr(signal, 'signal_type', 'unknown')}")
-                print(f"    Strength: {getattr(signal, 'signal_strength', 0.0):.3f}")
-                if hasattr(signal, 'long_strike'):
-                    print(f"    Long strike: {signal.long_strike}")
-                if hasattr(signal, 'short_strike'):
-                    print(f"    Short strike: {signal.short_strike}")
-                if hasattr(signal, 'net_debit'):
-                    print(f"    Net debit: ${signal.net_debit:.2f}")
-        else:
-            print("No spread signals generated")
-            print("Let's check what signal the signal generator produced...")
-
-            # Import signal generator and see what it produces
-            from trading_bot.strategies.signals import SignalGenerator
-            signal_generator = SignalGenerator()
-            raw_signal = signal_generator.get_signal(available_data, current_date)
-
-            if raw_signal is not None:
-                print(f"Raw signal from signal generator: {raw_signal.signal_type} (strength: {raw_signal.signal_strength:.3f})")
-                print(f"  Details: {raw_signal.metadata.get('details', 'No details')}")
-
-                # Check if it meets strategy thresholds
-                print(f"\nStrategy thresholds:")
-                print(f"  Min signal strength: {getattr(strategy, 'min_signal_strength', 'Not found')}")
-                print(f"  Requires bullish/bearish: {raw_signal.signal_type in ['bullish', 'bearish']}")
-                if hasattr(strategy, 'min_signal_strength'):
-                    meets_threshold = raw_signal.signal_strength >= strategy.min_signal_strength
-                    print(f"  Meets strength threshold ({strategy.min_signal_strength}): {meets_threshold}")
+        # Check for key indicator columns
+        required_cols = ['short_ma', 'medium_ma', 'long_ma', 'composite_score', 'signal']
+        for col in required_cols:
+            if col in data_with_indicators.columns:
+                print(f"Column '{col}' present")
+                # Check for NaN values
+                nan_count = data_with_indicators[col].isna().sum()
+                if nan_count > 0:
+                    print(f"  WARNING: {nan_count} NaN values in '{col}'")
+                    if nan_count == len(data_with_indicators):
+                        print(f"  ERROR: All values in '{col}' are NaN!")
+                else:
+                    print(f"  Value range: {data_with_indicators[col].min():.4f} to {data_with_indicators[col].max():.4f}")
             else:
-                print("Raw signal from signal generator: None")
+                print(f"ERROR: Column '{col}' missing!")
 
-def test_multiple_days_like_backtest():
-    """Test multiple days like the diagnostic backtest does."""
-    print("\n" + "=" * 60)
-    print("TESTING MULTIPLE DAYS LIKE DIAGNOSTIC BACKTEST")
-    print("=" * 60)
+        # Show first few rows with indicators
+        print("\nFirst 10 rows with indicators:")
+        print(data_with_indicators[['date', 'adjusted_close', 'short_ma', 'medium_ma', 'long_ma', 'composite_score', 'signal']].head(10))
 
-    pipeline = OptionsDataPipeline(symbol="AAPL")
-    strategy = VerticalSpreadStrategy('AAPL', max_risk_per_trade=0.02)
+        # Show last few rows with indicators
+        print("\nLast 10 rows with indicators:")
+        print(data_with_indicators[['date', 'adjusted_close', 'short_ma', 'medium_ma', 'long_ma', 'composite_score', 'signal']].tail(10))
 
-    # Test the same dates as in the diagnostic backtest output
-    test_dates = [
-        "2026-09-01",
-        "2026-09-02",
-        "2026-09-07",
-        "2026-09-08",
-        "2026-09-09"
-    ]
-
-    total_spread_signals = 0
-    total_raw_signals = 0
-
-    from trading_bot.strategies.signals import SignalGenerator
-    signal_generator = SignalGenerator()
-
-    for date_str in test_dates:
-        print(f"\n--- Testing {date_str} ---")
-
-        # Get lookback data (50 days before like diagnostic backtest)
-        dt = datetime.strptime(date_str, '%Y-%m-%d')
-        lookback_start = (dt - timedelta(days=50)).strftime('%Y-%m-%d')
-
-        stock_data = pipeline.get_stock_data(lookback_start, date_str)
-
-        if not stock_data.empty:
-            current_date = stock_data['date'].iloc[-1]
-            available_data = stock_data[stock_data['date'] <= current_date].copy()
-
-            # Get raw signal
-            raw_signal = signal_generator.get_signal(available_data, current_date)
-            if raw_signal is not None:
-                total_raw_signals += 1
-                print(f"Raw signal: {raw_signal.signal_type} (strength: {raw_signal.signal_strength:.3f})")
-
-                # Get option chain
-                option_chain = pipeline.get_option_chain_data(date_str)
-
-                # Get spread signals from strategy
-                spread_signals = strategy.generate_spread_signals(available_data, option_chain, current_date)
-                spread_count = len(spread_signals)
-                total_spread_signals += spread_count
-                print(f"Spread signals: {spread_count}")
-
-                if spread_count > 0:
-                    for signal in spread_signals:
-                        print(f"  {getattr(signal, 'signal_type', '?')} {getattr(signal, 'signal_strength', 0.0):.3f} "
-                              f"({getattr(signal, 'long_strike', 0.0)}/{getattr(signal, 'short_strike', 0.0)})")
-            else:
-                print("Raw signal: None")
-        else:
-            print("No stock data")
-
-    print(f"\nSUMMARY:")
-    print(f"  Raw signals generated: {total_raw_signals}")
-    print(f"  Spread signals generated: {total_spread_signals}")
-
-def main():
-    """Main debug function."""
-    print(f"Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print()
-
-    debug_strategy_signals()
-    test_multiple_days_like_backtest()
-
-    print(f"\nCompleted at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        return True
+    except Exception as e:
+        print(f"Error calculating indicators: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
 
 if __name__ == "__main__":
-    main()
+    success = test_strategy_indicators()
+    if success:
+        print("\n[SUCCESS] Strategy indicator test passed")
+    else:
+        print("\n[FAILURE] Strategy indicator test failed")

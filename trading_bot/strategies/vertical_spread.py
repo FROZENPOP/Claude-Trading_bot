@@ -715,20 +715,20 @@ if __name__ == "__main__":
     # Generate signals
     signals = strategy.generate_spread_signals(market_data, option_chain)
 
-    print(f"Generated {len(signals)} spread signals")
+    logger.info(f"Generated {len(signals)} spread signals")
 
     # Create a spread from first signal if available
     if signals:
         signal = signals[0]
-        print(f"Signal: {signal.signal_type} with strength {signal.signal_strength}")
+        logger.info(f"Signal: {signal.signal_type} with strength {signal.signal_strength}")
 
         # Create spread
         spread = strategy.create_vertical_spread(signal, portfolio_value=100000)
         if spread:
-            print(f"Created spread: {spread}")
+            logger.info(f"Created spread: {spread}")
 
             # Check exit condition
             should_exit, exit_price, reason = strategy.exit_spread(
                 spread, option_chain, datetime.now()
             )
-            print(f"Exit recommendation: {should_exit} - {reason}")
+            logger.info(f"Exit recommendation: {should_exit} - {reason}")

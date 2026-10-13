@@ -25,7 +25,7 @@ The bot integrates Phase 11 execution components including smart order routing, 
 ### Core Functionality
 - **Market-Hours Aware**: Automatically detects when market is open/closed (including PRE_MARKET and POST_MARKET) and adjusts behavior accordingly
 - **Autonomous Operation**: Manages its own lifecycle based on market hours - no external scheduler needed
-- **Multi-Strategy Support**: Implements various options strategies including vertical spreads, covered calls, and more
+- **Multi-Strategy Support**: Implements various options strategies including vertical spreads, covered calls, cash-secured puts, iron condors, calendar spreads, straddles, strangles, butterflies, collars, diagonal spreads, and protective puts
 - **Phase 11 Integration**: Full integration of advanced execution components:
   - Smart Order Routing (VWAP, TWAP, POV algorithms)
   - Advanced Order Types (Iceberg, Pegged orders)
@@ -69,6 +69,12 @@ claude-trading-bot/
 │   │   ├── covered_call.py          # Covered calls/cash-secured puts
 │   │   ├── iron_condor.py           # Iron condor strategy
 │   │   ├── calendar_spread.py       # Calendar spread strategy
+│   │   ├── straddle.py              # Straddle strategy
+│   │   ├── strangle.py              # Strangle strategy
+│   │   ├── butterfly.py             # Butterfly strategy
+│   │   ├── collar.py                # Collar strategy
+│   │   ├── diagonal_spread.py       # Diagonal spread strategy
+│   │   ├── protective_put.py        # Protective put strategy
 │   │   └── option_pricing.py        # Black-Scholes model & Greeks
 │   ├── backtesting/             # Backtesting engine
 │   │   ├── engine.py                  # Core backtesting logic
@@ -87,8 +93,7 @@ claude-trading-bot/
 │   │   ├── phase11_execution_analysis.py   # Execution analysis (slippage/impact)
 │   │   ├── phase11_execution_monitor.py    # Execution monitoring & alerting
 │   │   ├── phase11_adaptive_execution.py   # Adaptive execution (market condition detection)
-│   │   ├── phase11_coordinator.py          # Main Phase 11 coordinator
-│   │   └── phase11_adaptive_execution.py   # Adaptive execution based on market conditions
+│   │   └── phase11_coordinator.py          # Main Phase 11 coordinator
 │   ├── research/                # Research & analysis
 │   │   ├── walk_forward.py          # Walk-forward analysis
 │   │   ├── reports.py               # Report generation
@@ -101,7 +106,7 @@ claude-trading-bot/
 │   │   └── phase4_opportunity_generation_workflow.py  # Workflow for opportunity generation
 │   ├── ranking/                 # Trade ranking
 │   │   ├── trade_ranker.py            # Individual trade ranking
-│   │   ├── phase5_individual_trade_ranking_workflow.py  # Workflow for trade ranking
+│   │   ├── phase5_individual_trade_ranking_workflow.py  # Workflow for individual trade ranking
 │   │   └── phase6_portfolio_risk_management_workflow.py # Workflow for portfolio risk management
 │   ├── screening/               # Stock screening
 │   │   ├── phase3_stock_screening_workflow.py   # Workflow for stock screening
@@ -148,6 +153,12 @@ claude-trading-bot/
 - **covered_call.py**: Implements covered call and cash-secured put strategies
 - **iron_condor.py**: Implements iron condor options strategy
 - **calendar_spread.py**: Implements calendar spread options strategy
+- **straddle.py**: Implements straddle options strategy (long and short)
+- **strangle.py**: Implements strangle options strategy (long and short)
+- **butterfly.py**: Implements butterfly options strategy (long and short)
+- **collar.py**: Implements collar options strategy (protective collar)
+- **diagonal_spread.py**: Implements diagonal spread options strategy (bullish and bearish)
+- **protective_put.py**: Implements protective put strategy (long stock + long put)
 - **option_pricing.py**: Black-Scholes model for options pricing and Greeks calculation
 
 ### Backtesting Layer (`trading_bot/backtesting/`)
@@ -485,13 +496,18 @@ When adding new MCP tool usage:
 - ✅ Position reconciliation and risk management
 - ✅ Phase 11 execution component integration
 - ✅ Error handling and logging systems
+- ✅ All options strategies: vertical spreads, covered calls, cash-secured puts, iron condors, calendar spreads, straddles, strangles, butterflies, collars, diagonal spreads, protective puts
 
 ### Recent Enhancements (Based on Research Subagent Findings)
+- **Implemented additional options strategies**: Added straddle, strangle, butterfly, collar, diagonal spread, and protective put strategies with complete signal generation, position sizing, and exit logic
+- **Enhanced backtesting capabilities**: Improved walk-forward analysis to properly test and compare multiple options strategies through dynamic strategy loading
+- **Fixed critical bugs**: Resolved numerous issues in exit methods, parameter passing, and data handling across all strategy modules
+- **Migrated to Webull exclusively**: Removed all remaining Alpaca references and migrated to Webull MCP tools throughout the codebase
+- **Improved error handling and logging**: Replaced print statements with proper logging calls in multiple modules
+- **Fixed TypeError in enhanced_robustness.py**: Resolved format string errors and missing module issues
 - **Options-Specific Stock Screening**: Added Put/Call Ratio, options activity, and market depth analysis to stock screener
 - **Enhanced Factor Weights**: Updated multi-factor model to include 10% weighting for options-specific factors
-- **Improved Signal Confirmation**: Updated confirmation logic to include options score in factor alignment
 - **Contract-Metadata-First Approach**: All new MCP usage follows research-grade methodology to prevent look-ahead bias
-- **Bug Fixes**: Resolved critical issues in opportunity generation, exposure calculation, and data handling
 
 ### Known Limitations
 - **MCP Dependency**: Optimal performance requires MCP servers to be running
@@ -547,5 +563,5 @@ For questions and support:
 5. Consider reaching out to the developer community for specific questions
 
 ---
-*Last Updated: 2026-10-10*
-*Version: 1.1.0 (Enhanced with options-specific screening)*
+*Last Updated: 2026-10-12*
+*Version: 1.2.0 (Enhanced with multiple options strategies and bug fixes)*

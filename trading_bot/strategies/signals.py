@@ -436,7 +436,7 @@ if __name__ == "__main__":
     signal = signal_generator.get_signal(sample_data, datetime.now())
 
     if signal:
-        print(f"Generated signal: {signal.signal_type} with strength {signal.signal_strength:.2f}")
-        print(f"Details: {signal.metadata.get('details', 'No details')}")
+        logger.info(f"Generated signal: {signal.signal_type} with strength {signal.signal_strength:.2f}")
+        logger.info(f"Details: {signal.metadata.get('details', 'No details')}")
     else:
-        print("No signal generated")
+        logger.info("No signal generated")

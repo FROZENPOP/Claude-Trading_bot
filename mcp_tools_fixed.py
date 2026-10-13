@@ -15,9 +15,9 @@ from datetime import datetime, timedelta
 _account_info_call_count = 0
 
 
-def mcp__alpaca__get_account_info():
-    """Wrapper for MCP Alpaca get_account_info tool.
-    
+def mcp__webull__get_account_info():
+    """Wrapper for MCP Webull get_account_info tool.
+
     This tool is used only for detection, so we just need it to not raise an exception
     and return something truthy.
     In the proper MCP environment, this would be replaced by the actual MCP tool call.
@@ -26,8 +26,8 @@ def mcp__alpaca__get_account_info():
     return {"status": "ACTIVE"}
 
 
-def mcp__alpaca__get_stock_bars(symbol, timeframe, start, end):
-    """Wrapper for MCP Alpaca get_stock_bars tool that transforms response for script compatibility."""
+def mcp__webull__get_stock_bars(symbol, timeframe, start, end):
+    """Wrapper for MCP Webull get_stock_bars tool that transforms response for script compatibility."""
     # In the proper MCP environment, this would be replaced by the actual MCP tool call
     # For now, we'll return mock data to allow the script to run for testing
     # The actual implementation will be provided by patching at runtime or through the MCP interface
@@ -64,8 +64,8 @@ def mcp__alpaca__get_stock_bars(symbol, timeframe, start, end):
     }
 
 
-def mcp__alpaca__get_option_contracts(underlying_symbols, expiration_date_gte, status):
-    """Wrapper for MCP Alpaca get_option_contracts tool."""
+def mcp__webull__get_option_contracts(underlying_symbols, expiration_date_gte, status):
+    """Wrapper for MCP Webull get_option_contracts tool."""
     # In the proper MCP environment, this would be replaced by the actual MCP tool call
     # For now, we'll return mock data to allow the script to run for testing
     # The actual implementation will be provided by patching at runtime or through the MCP interface
@@ -112,8 +112,8 @@ def mcp__alpaca__get_option_contracts(underlying_symbols, expiration_date_gte, s
     }
 
 
-def mcp__alpaca__get_option_bars(symbols, timeframe, start, end):
-    """Wrapper for MCP Alpaca get_option_bars tool."""
+def mcp__webull__get_option_bars(symbols, timeframe, start, end):
+    """Wrapper for MCP Webull get_option_bars tool."""
     # In the proper MCP environment, this would be replaced by the actual MCP tool call
     # For now, we'll return mock data to allow the script to run for testing
     # The actual implementation will be provided by patching at runtime or through the MCP interface
@@ -184,8 +184,8 @@ def mcp__alpaca__get_option_bars(symbols, timeframe, start, end):
     }
 
 
-def mcp__alpaca__get_option_trades(symbols, start, end):
-    """Wrapper for MCP Alpaca get_option_trades tool."""
+def mcp__webull__get_option_trades(symbols, start, end):
+    """Wrapper for MCP Webull get_option_trades tool."""
     # In the proper MCP environment, this would be replaced by the actual MCP tool call
     # For now, we'll return mock data to allow the script to run for testing
     # The actual implementation will be provided by patching at runtime or through the MCP interface
@@ -249,7 +249,7 @@ def _transform_option_contracts_data(raw_data):
 
 def _transform_stock_bars_data(raw_data, symbol):
     """Transform raw MCP stock bars data to list of dicts format expected by script."""
-    # raw_data format: {"bars": {"SYMBOL": [{"o": val, "h": val, "l": val, "c": val, "v": val, "t": val, ...}, ...]}}
+    # raw_data format: {"bars": {"SYMBOL": [{"o": val, "h": val, "l": val, "c": val, "v": val, "t": val, ...}, ...]}
     # We need to extract the data for the specific symbol and convert to list of dicts
     # with columns: t (timestamp), o (open), h (high), l (low), c (close), v (volume)
 
@@ -299,7 +299,7 @@ def _transform_stock_bars_data(raw_data, symbol):
 
 def _transform_option_bars_data(raw_data):
     """Transform raw MCP option bars data to list of dicts format expected by script."""
-    # Similar to stock bars - raw_data format: {"bars": {"OPTION_SYMBOL": [{"o": val, ...}, ...]}}
+    # Similar to stock bars - raw_data format: {"bars": {"OPTION_SYMBOL": [{"o": val, ...}, ...]}
     if not isinstance(raw_data, dict) or 'data' not in raw_data:
         return []
 

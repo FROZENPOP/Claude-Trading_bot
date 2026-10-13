@@ -971,43 +971,43 @@ if __name__ == "__main__":
     })
 
     # Test covered call strategy
-    print("=== Testing Covered Call Strategy ===")
+    logger.info("=== Testing Covered Call Strategy ===")
     cc_strategy = CoveredCallStrategy('AAPL')
     cc_signals = cc_strategy.generate_covered_call_signals(market_data, option_chain)
 
-    print(f"Generated {len(cc_signals)} covered call signals")
+    logger.info(f"Generated {len(cc_signals)} covered call signals")
     if cc_signals:
         signal = cc_signals[0]
-        print(f"Signal: {signal}")
+        logger.debug(f"Signal: {signal}")
 
         # Create position
         position = cc_strategy.create_covered_call_position(signal, portfolio_value=100000)
         if position:
-            print(f"Created position: {position}")
+            logger.debug(f"Created position: {position}")
 
             # Check exit condition
             should_exit, exit_value, reason = cc_strategy.exit_covered_call(
                 position, market_data, option_chain, datetime.now()
             )
-            print(f"Exit recommendation: {should_exit} - {reason}")
+            logger.debug(f"Exit recommendation: {should_exit} - {reason}")
 
-    print("\n=== Testing Cash-Secured Put Strategy ===")
+    logger.info("\n=== Testing Cash-Secured Put Strategy ===")
     # Test cash-secured put strategy
     csp_strategy = CashSecuredPutStrategy('AAPL')
     csp_signals = csp_strategy.generate_cash_secured_put_signals(market_data, option_chain)
 
-    print(f"Generated {len(csp_signals)} cash-secured put signals")
+    logger.info(f"Generated {len(csp_signals)} cash-secured put signals")
     if csp_signals:
         signal = csp_signals[0]
-        print(f"Signal: {signal}")
+        logger.debug(f"Signal: {signal}")
 
         # Create position
         position = csp_strategy.create_cash_secured_put_position(signal, portfolio_value=100000)
         if position:
-            print(f"Created position: {position}")
+            logger.debug(f"Created position: {position}")
 
             # Check exit condition
             should_exit, exit_value, reason = csp_strategy.exit_cash_secured_put(
                 position, market_data, option_chain, datetime.now()
             )
-            print(f"Exit recommendation: {should_exit} - {reason}")
+            logger.debug(f"Exit recommendation: {should_exit} - {reason}")

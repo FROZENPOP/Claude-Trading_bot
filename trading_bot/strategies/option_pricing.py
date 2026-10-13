@@ -373,30 +373,30 @@ if __name__ == "__main__":
     call_price = model.black_scholes_price(S, K, T, r, sigma, 'call')
     call_greeks = model.calculate_greeks(S, K, T, r, sigma, 'call')
 
-    print(f"Call Price: ${call_price:.2f}")
-    print(f"Call Delta: {call_greeks['delta']:.4f}")
-    print(f"Call Gamma: {call_greeks['gamma']:.6f}")
-    print(f"Call Theta: {call_greeks['theta']:.4f} per day")
-    print(f"Call Vega: {call_greeks['vega']:.4f} per 1% vol change")
+    logger.info(f"Call Price: ${call_price:.2f}")
+    logger.info(f"Call Delta: {call_greeks['delta']:.4f}")
+    logger.info(f"Call Gamma: {call_greeks['gamma']:.6f}")
+    logger.info(f"Call Theta: {call_greeks['theta']:.4f} per day")
+    logger.info(f"Call Vega: {call_greeks['vega']:.4f} per 1% vol change")
 
     # Calculate put price and Greeks
     put_price = model.black_scholes_price(S, K, T, r, sigma, 'put')
     put_greeks = model.calculate_greeks(S, K, T, r, sigma, 'put')
 
-    print(f"\nPut Price: ${put_price:.2f}")
-    print(f"Put Delta: {put_greeks['delta']:.4f}")
-    print(f"Put Gamma: {put_greeks['gamma']:.6f}")
-    print(f"Put Theta: {put_greeks['theta']:.4f} per day")
-    print(f"Put Vega: {put_greeks['vega']:.4f} per 1% vol change")
+    logger.info(f"\nPut Price: ${put_price:.2f}")
+    logger.info(f"Put Delta: {put_greeks['delta']:.4f}")
+    logger.info(f"Put Gamma: {put_greeks['gamma']:.6f}")
+    logger.info(f"Put Theta: {put_greeks['theta']:.4f} per day")
+    logger.info(f"Put Vega: {put_greeks['vega']:.4f} per 1% vol change")
 
     # Test implied volatility calculation
     market_price = 5.00
     iv = model.implied_volatility(market_price, S, K, T, r, 'call')
-    print(f"\nImplied Volatility for ${market_price} call: {iv:.2%}")
+    logger.info(f"\nImplied Volatility for ${market_price} call: {iv:.2%}")
 
     # Test symbol parsing
     try:
         parsed = parse_option_symbol("AAPL240119C00150000")
-        print(f"\nParsed symbol: {parsed}")
+        logger.info(f"\nParsed symbol: {parsed}")
     except Exception as e:
-        print(f"Error parsing symbol: {e}")
+        logger.error(f"Error parsing symbol: {e}")

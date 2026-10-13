@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Interface module for MCP Alpaca tools that actually works by making
+Interface module for MCP Webull tools that actually works by making
 real MCP tool calls through the available MCP interface.
 """
 
 import pandas as pd
 from datetime import datetime
 
-def mcp__alpaca__get_account_info():
-    """Wrapper for MCP Alpaca get_account_info tool."""
+def mcp__webull__get_account_info():
+    """Wrapper for MCP Webull get_account_info tool."""
     # This function will be called by the research script
     # We need to make the actual MCP tool call and return the result
     # But we can't make MCP tool calls directly from Python code in this context
@@ -25,8 +25,8 @@ def mcp__alpaca__get_account_info():
         "portfolio_value": "100000"
     }
 
-def mcp__alpaca__get_stock_bars(symbol, timeframe, start, end):
-    """Wrapper for MCP Alpaca get_stock_bars tool."""
+def mcp__webull__get_stock_bars(symbol, timeframe, start, end):
+    """Wrapper for MCP Webull get_stock_bars tool."""
     # For stock data, we're supposed to use yfinance per user instruction
     # So we won't actually use this for stock data
     # But we'll include it for completeness
@@ -71,8 +71,8 @@ def mcp__alpaca__get_stock_bars(symbol, timeframe, start, end):
     # Return in expected format
     return df
 
-def mcp__alpaca__get_option_contracts(underlying_symbols, expiration_date_gte, status):
-    """Wrapper for MCP Alpaca get_option_contracts tool."""
+def mcp__webull__get_option_contracts(underlying_symbols, expiration_date_gte, status):
+    """Wrapper for MCP Webull get_option_contracts tool."""
     # This is where we need to make the real MCP tool call
     # Since we can't make MCP tool calls directly from Python code,
     # we'll raise an exception with instructions
@@ -86,12 +86,12 @@ def mcp__alpaca__get_option_contracts(underlying_symbols, expiration_date_gte, s
         'volume', 'open_interest'
     ])
 
-def mcp__alpaca__get_option_bars(symbols, timeframe, start, end):
-    """Wrapper for MCP Alpaca get_option_bars tool."""
+def mcp__webull__get_option_bars(symbols, timeframe, start, end):
+    """Wrapper for MCP Webull get_option_bars tool."""
     # Same issue - need to make real MCP tool call
     return pd.DataFrame()
 
-def mcp__alpaca__get_option_trades(symbols, start, end):
-    """Wrapper for MCP Alpaca get_option_trades tool."""
+def mcp__webull__get_option_trades(symbols, start, end):
+    """Wrapper for MCP Webull get_option_trades tool."""
     # Same issue - need to make real MCP tool call
     return pd.DataFrame()

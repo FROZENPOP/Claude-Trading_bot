@@ -25,9 +25,9 @@ def demonstrate_prefetch_approach():
 
     print("\nIn practice, users would:")
     print("1. Execute MCP calls to fetch data:")
-    print("   - mcp__alpaca__get_stock_bars(symbol='AAPL', timeframe='1Day', start='2026-07-19', end='2026-09-07')")
-    print("   - mcp__alpaca__get_option_chain(underlying_symbol='AAPL', date='2026-09-07')")
-    print("   - (Optionally) mcp__alpaca__get_option_bars for historical options data")
+    print("   - mcp__webull__get_stock_bars(symbol='AAPL', timeframe='1Day', start='2026-07-19', end='2026-09-07')")
+    print("   - mcp__webull__get_option_chain(underlying_symbol='AAPL', date='2026-09-07')")
+    print("   - (Optionally) mcp__webull__get_option_bars for historical options data")
     print("2. Convert the MCP results to pandas DataFrames")
     print("3. Pass the DataFrames to OptionsDataPipeline constructor")
     print("4. Proceed with signal generation and backtesting")
@@ -38,7 +38,7 @@ def demonstrate_prefetch_approach():
     print("=" * 50)
     print("""
 # Fetch data externally using MCP tools (would be done in MCP-accessible environment)
-stock_mcp_result = mcp__alpaca__get_stock_bars(
+stock_mcp_result = mcp__webull__get_stock_bars(
     symbol="AAPL",
     timeframe="1Day",
     start="2026-07-19",
@@ -47,7 +47,7 @@ stock_mcp_result = mcp__alpaca__get_stock_bars(
 # Convert to DataFrame (implementation depends on MCP result format)
 stock_df = convert_mcp_result_to_dataframe(stock_mcp_result)
 
-option_chain_mcp_result = mcp__alpaca__get_option_chain(
+option_chain_mcp_result = mcp__webull__get_option_chain(
     underlying_symbol="AAPL",
     date="2026-09-07"
 )
@@ -74,7 +74,7 @@ strategy = VerticalSpreadStrategy('AAPL', max_risk_per_trade=0.02)
 """)
 
     print("\nKEY POINTS:")
-    print("[OK] Real historical data from Alpaca (no simulated/fallback data)")
+    print("[OK] Real historical data from Webull (no simulated/fallback data)")
     print("[OK] Research integrity preserved (properties of real data maintained)")
     print("[OK] No changes needed to research pipeline logic")
     print("[OK] Works in any Python environment (no MCP access required during research execution)")

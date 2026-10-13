@@ -677,20 +677,20 @@ if __name__ == "__main__":
     # Generate signals
     signals = cs_strategy.generate_calendar_spread_signals(market_data, option_chain)
 
-    print(f"Generated {len(signals)} calendar spread signals")
+    logger.info(f"Generated {len(signals)} calendar spread signals")
 
     # Create a position from first signal if available
     if signals:
         signal = signals[0]
-        print(f"Signal: {signal}")
+        logger.debug(f"Signal: {signal}")
 
         # Create position
         position = cs_strategy.create_calendar_spread_position(signal, portfolio_value=100000)
         if position:
-            print(f"Created position: {position}")
+            logger.debug(f"Created position: {position}")
 
             # Check exit condition
             should_exit, exit_value, reason = cs_strategy.exit_calendar_spread(
                 position, option_chain, datetime.now()
             )
-            print(f"Exit recommendation: {should_exit} - {reason}")
+            logger.debug(f"Exit recommendation: {should_exit} - {reason}")
