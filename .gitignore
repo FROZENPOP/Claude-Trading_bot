@@ -49,3 +49,6 @@ research_outputs/
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude Code configuration
+.claude/
