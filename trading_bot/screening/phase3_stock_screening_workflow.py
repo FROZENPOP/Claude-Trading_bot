@@ -176,6 +176,7 @@ const rankedResults = validResults
   .sort((a, b) => b.research_score - a.research_score)
 
 // Prepare final output
+const topN = args?.top_n ?? 20; // Default to 20 if not specified
 const output = {
   phase: 'Phase 3 - Stock Screening and Ranking (Enhanced)',
   timestamp: new Date().toISOString(),
@@ -187,7 +188,7 @@ const output = {
   stocks_filtered: totalFiltered,
   stocks_error: totalErrors,
   stocks_ranked: rankedResults.length,
-  top_stocks: rankedResults.slice(0, 20), // Top 20 for Phase 4
+  top_stocks: rankedResults.slice(0, topN), // Top N for Phase 4 (configurable)
   all_results: rankedResults,
   statistics: {
     avg_research_score: rankedResults.length > 0

@@ -1,7 +1,7 @@
 """Stock universe management for autonomous options trading system."""
 
 import yaml
-from typing import List, Set
+from typing import List, Set, Optional
 from pathlib import Path
 import logging
 
@@ -11,28 +11,61 @@ logger = logging.getLogger(__name__)
 class StockUniverse:
     """Manages the configurable stock universe for the autonomous trading system."""
 
-    def __init__(self, config_path: str = "config/universe.yaml"):
-        """Initialize stock universe from configuration file.
+    def __init__(self,
+                 config_path: str = "config/universe.yaml",
+                 prestocked_symbols: Optional[List[str]] = None,
+                 top_n: Optional[int] = None):
+        """Initialize stock universe from configuration file or pre-stocked symbols.
 
         Args:
             config_path: Path to universe configuration YAML file
+            prestocked_symbols: Optional list of stock symbols pre-sorted by optimality
+            top_n: Optional number of top symbols to use from prestocked_symbols
         """
         self.config_path = Path(config_path)
+        self.prestocked_symbols = prestocked_symbols
+        self.top_n = top_n
         self.universe: Set[str] = set()
         self._load_universe()
 
     def _load_universe(self) -> None:
-        """Load stock universe from YAML configuration file."""
+        """Load stock universe from YAML configuration file or pre-stocked symbols."""
         try:
+            # Use prestocked symbols if provided
+            if self.prestocked_symbols is not None:
+                # Validate symbols
+                symbols = [symbol.upper().strip() for symbol in self.prestocked_symbols
+                          if isinstance(symbol, str) and symbol.strip()]
+
+                # Apply top_n limit if specified
+                if self.top_n is not None:
+                    symbols = symbols[:self.top_n]
+                    logger.info(f"Using top {self.top_n} stocks from prestocked list")
+                else:
+                    logger.info(f"Using all {len(symbols)} stocks from prestocked list")
+
+                self.universe = set(symbols)
+                return
+
+            # Fall back to loading from config file
             if self.config_path.exists():
                 with open(self.config_path, 'r') as f:
                     config = yaml.safe_load(f)
 
                 # Handle different config formats
                 if isinstance(config, dict) and 'universe' in config:
+                    # Format: {'universe': ['AAPL', 'MSFT', ...]}
                     symbols = config['universe']
                 elif isinstance(config, list):
+                    # Format: ['AAPL', 'MSFT', ...]
                     symbols = config
+                elif isinstance(config, dict):
+                    # Format: {'Technology': ['AAPL', 'MSFT', ...], 'Finance': [...], ...}
+                    # Extract all symbols from all categories
+                    symbols = []
+                    for category, category_symbols in config.items():
+                        if isinstance(category_symbols, list):
+                            symbols.extend(category_symbols)
                 else:
                     symbols = []
 
