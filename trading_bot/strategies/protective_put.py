@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 
 from trading_bot.strategies.option_pricing import OptionPricingModel, parse_option_symbol
 from trading_bot.strategies.signals import SignalGenerator
+from trading_bot.risk_management import RiskManager
 
 logger = logging.getLogger(__name__)
 
@@ -79,6 +80,7 @@ class ProtectivePutStrategy:
         self.preferred_moneyness = preferred_moneyness  # (min_otm, max_otm) as fraction of stock price
         self.risk_free_rate = risk_free_rate
         self.pricing_model = OptionPricingModel(risk_free_rate)
+        self.risk_manager = RiskManager(risk_free_rate)
 
         logger.info(f"Protective put strategy initialized for {underlying_symbol}")
 
@@ -281,9 +283,23 @@ class ProtectivePutStrategy:
         put_symbol = signal['put_symbol']
         put_price = signal['put_mid_price']
 
-        # Calculate how many shares we can buy (position sizing)
-        max_stock_value = portfolio_value * self.max_position_size
-        underlying_shares = int(max_stock_value / underlying_price)
+        # For protective put, risk per share is: stock_price + put_price - put_strike
+        # This represents the maximum loss per share if stock goes to zero
+        risk_per_share = underlying_price + put_price - put_strike
+
+        if risk_per_share <= 0:
+            logger.warning(f"Invalid risk per share for protective put: {risk_per_share:.2f}")
+            return None
+
+        # Use RiskManager for position sizing based on risk per share
+        position_sizing = self.risk_manager.calculate_position_size(
+            portfolio_value=portfolio_value,
+            risk_per_unit=risk_per_share,
+            max_risk_per_trade=self.max_position_size  # Using max_position_size as risk limit
+        )
+
+        # Calculate number of shares based on position sizing
+        underlying_shares = int(position_sizing.quantity)
 
         if underlying_shares < 100:  # Minimum 100 shares for 1 contract
             logger.warning(f"Not enough capital for even 1 share lot: {underlying_shares} shares")
@@ -298,6 +314,9 @@ class ProtectivePutStrategy:
 
         # Number of put contracts to buy (1 contract per 100 shares)
         put_contracts = underlying_shares // 100
+
+        # Calculate actual risk based on the final position size
+        actual_risk = underlying_shares * risk_per_share
 
         # Calculate entry prices
         # In practice, we'd need to get actual fill prices

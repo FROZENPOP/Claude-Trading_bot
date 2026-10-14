@@ -26,7 +26,7 @@ class IndividualTradeRanker:
 
     def __init__(self,
                  min_risk_reward_ratio: float = 2.0,     # Minimum risk/reward ratio
-                 max_risk_per_trade: float = 0.02,       # Maximum 2% portfolio risk per trade
+                 max_risk_per_trade: float = 0.02,       # Maximum allowed risk ratio (max_loss_per_share / underlying_price_per_share)
                  min_win_rate: float = 0.6,              # Minimum 60% win rate
                  max_correlation: float = 0.7,           # Maximum correlation with existing positions
                  liquidity_threshold: float = 1000000):  # Minimum daily volume for liquidity
@@ -34,7 +34,7 @@ class IndividualTradeRanker:
 
         Args:
             min_risk_reward_ratio: Minimum acceptable risk/reward ratio
-            max_risk_per_trade: Maximum portfolio risk per trade (as fraction)
+            max_risk_per_trade: Maximum allowed risk ratio where risk ratio = (max_loss_per_share / underlying_price_per_share)
             min_win_rate: Minimum acceptable win rate
             max_correlation: Maximum correlation with existing portfolio
             liquidity_threshold: Minimum daily dollar volume for liquidity
