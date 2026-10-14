@@ -2,13 +2,15 @@
 
 import pandas as pd
 import numpy as np
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 from trading_bot.strategies.option_pricing import OptionPricingModel, parse_option_symbol
 from trading_bot.strategies.signals import SignalGenerator
+from trading_bot.forecasts import ForecastSignalGenerator, PriceForecast
+from trading_bot.risk_management import RiskManager
 
 logger = logging.getLogger(__name__)
 
@@ -63,9 +65,10 @@ class VerticalSpreadStrategy:
         self,
         underlying_symbol: Optional[str] = None,
         signal_generator: Optional[SignalGenerator] = None,
+        forecast_generator: Optional[ForecastSignalGenerator] = None,
         max_risk_per_trade: float = 0.02,  # 2% of portfolio per trade
-        preferred_dte: List[int] = [21, 30, 45, 60],
-        preferred_delta_range: Tuple[float, float] = (0.4, 0.6),
+        preferred_dte: Optional[List[int]] = None,
+        preferred_delta_range: Optional[Tuple[float, float]] = None,
         max_spread_width: float = 10.0,  # Maximum spread width in dollars
         risk_free_rate: float = 0.05,
         max_contracts_per_trade: int = 10  # Maximum number of contracts per trade
@@ -76,23 +79,157 @@ class VerticalSpreadStrategy:
             underlying_symbol: Underlying stock symbol (e.g., 'AAPL')
             signal_generator: Underlying signal generator (if None, creates default)
             max_risk_per_trade: Maximum risk per trade as fraction of portfolio
-            preferred_dte: Preferred days to expiration for options
-            preferred_delta_range: Preferred delta range for long leg
+            preferred_dte: Preferred days to expiration for options (None for dynamic)
+            preferred_delta_range: Preferred delta range for long leg (None for dynamic)
             max_spread_width: Maximum spread width in dollars
             risk_free_rate: Risk-free rate for pricing models
             max_contracts_per_trade: Maximum number of contracts per trade
         """
         self.underlying_symbol = underlying_symbol
         self.signal_generator = signal_generator or SignalGenerator()
+        self.forecast_generator = forecast_generator or ForecastSignalGenerator()
         self.max_risk_per_trade = max_risk_per_trade
-        self.preferred_dte = preferred_dte
-        self.preferred_delta_range = preferred_delta_range
+        # Set defaults but allow dynamic adjustment
+        self.preferred_dte = preferred_dte or [21, 30, 45, 60]
+        self.preferred_delta_range = preferred_delta_range or (0.4, 0.6)
         self.max_spread_width = max_spread_width
         self.risk_free_rate = risk_free_rate
         self.max_contracts_per_trade = max_contracts_per_trade
         self.pricing_model = OptionPricingModel(risk_free_rate)
+        self.risk_manager = RiskManager(risk_free_rate)
+
+        # Performance tracking for dynamic threshold adjustment
+        self.performance_history = []
+        self.dynamic_signal_threshold = 0.3  # Will be adjusted based on performance
+        self.dynamic_return_threshold = 0.05  # Will be adjusted based on performance
+        # Dynamic delta range for adaptive strike selection
+        self.dynamic_preferred_delta_range = None  # Will be adjusted based on performance
 
         logger.info(f"Vertical spread strategy initialized for {underlying_symbol}")
+
+    def update_performance_metrics(self, trade_result: Dict[str, Any]):
+        """Update performance metrics for dynamic threshold adjustment.
+
+        Args:
+            trade_result: Dictionary containing trade performance data
+        """
+        self.performance_history.append(trade_result)
+        # Keep only last 100 trades for memory efficiency
+        if len(self.performance_history) > 100:
+            self.performance_history = self.performance_history[-100:]
+
+        # Adjust thresholds based on recent performance
+        self._adjust_thresholds()
+        self._adjust_delta_range()
+
+    def _adjust_thresholds(self):
+        """Dynamically adjust signal and return thresholds based on historical performance."""
+        if len(self.performance_history) < 20:  # Need minimum samples
+            return
+
+        # Calculate win rate and average return for different signal strength bins
+        recent_trades = self.performance_history[-50:]  # Last 50 trades
+
+        # Group trades by signal strength
+        signal_bins = np.linspace(0, 1, 11)  # 0.0, 0.1, 0.2, ..., 1.0
+        bin_performance = []
+
+        for i in range(len(signal_bins)-1):
+            bin_low, bin_high = signal_bins[i], signal_bins[i+1]
+            bin_trades = [t for t in recent_trades
+                         if bin_low <= t.get('signal_strength', 0) < bin_high]
+
+            if bin_trades:
+                win_rate = sum(1 for t in bin_trades if t.get('profit_loss', 0) > 0) / len(bin_trades)
+                avg_return = np.mean([t.get('return_pct', 0) for t in bin_trades])
+                bin_performance.append({
+                    'signal_range': (bin_low, bin_high),
+                    'win_rate': win_rate,
+                    'avg_return': avg_return,
+                    'sample_size': len(bin_trades)
+                })
+
+        # Find signal strength threshold that gives acceptable win rate (>55%)
+        min_acceptable_win_rate = 0.55
+        suitable_thresholds = [bp for bp in bin_performance
+                             if bp['win_rate'] >= min_acceptable_win_rate and bp['sample_size'] >= 5]
+
+        if suitable_thresholds:
+            # Use the lowest signal strength that meets criteria (to maximize opportunities)
+            best_bin = min(suitable_thresholds, key=lambda x: x['signal_range'][0])
+            new_threshold = best_bin['signal_range'][0]
+            # Smooth adjustment to avoid abrupt changes
+            self.dynamic_signal_threshold = 0.7 * self.dynamic_signal_threshold + 0.3 * new_threshold
+            self.dynamic_signal_threshold = max(0.1, min(0.5, self.dynamic_signal_threshold))
+
+        # Adjust return target based on market volatility and opportunity frequency
+        returns = [t.get('return_pct', 0) for t in recent_trades if t.get('return_pct', 0) > 0]
+        if returns:
+            # Target return that balances frequency and magnitude
+            median_return = np.median(returns)
+            # Aim for 20% above median to account for selection bias
+            target_return = median_return * 1.2
+            # Bound the target return reasonably
+            self.dynamic_return_threshold = max(0.02, min(0.15, target_return))
+
+    def _adjust_delta_range(self):
+        """Dynamically adjust preferred delta range based on historical performance."""
+        if len(self.performance_history) < 20:  # Need minimum samples
+            return
+
+        # Calculate win rate and average return for different delta ranges
+        recent_trades = self.performance_history[-50:]  # Last 50 trades
+
+        # For simplicity, we'll look at the delta of the long leg of trades
+        # In practice, we might want to look at spread characteristics
+        delta_bins = np.linspace(-1.0, 1.0, 21)  # -1.0 to 1.0 in steps of 0.1
+        bin_performance = []
+
+        for i in range(len(delta_bins)-1):
+            bin_low, bin_high = delta_bins[i], delta_bins[i+1]
+            # Get trades where long leg delta falls in this range
+            bin_trades = [t for t in recent_trades
+                         if bin_low <= t.get('long_delta', 0) < bin_high]
+
+            if bin_trades:
+                win_rate = sum(1 for t in bin_trades if t.get('profit_loss', 0) > 0) / len(bin_trades)
+                avg_return = np.mean([t.get('return_pct', 0) for t in bin_trades])
+                bin_performance.append({
+                    'delta_range': (bin_low, bin_high),
+                    'win_rate': win_rate,
+                    'avg_return': avg_return,
+                    'sample_size': len(bin_trades)
+                })
+
+        # Find delta range that gives acceptable win rate (>55%)
+        min_acceptable_win_rate = 0.55
+        suitable_ranges = [bp for bp in bin_performance
+                          if bp['win_rate'] >= min_acceptable_win_rate and bp['sample_size'] >= 5]
+
+        if suitable_ranges:
+            # Use the range with highest win rate (or best risk-adjusted return)
+            best_range = max(suitable_ranges, key=lambda x: x['win_rate'])
+            new_min_delta, new_max_delta = best_range['delta_range']
+
+            # Smooth adjustment to avoid abrupt changes
+            if self.dynamic_preferred_delta_range is None:
+                self.dynamic_preferred_delta_range = (new_min_delta, new_max_delta)
+            else:
+                curr_min, curr_max = self.dynamic_preferred_delta_range
+                new_min = 0.7 * curr_min + 0.3 * new_min_delta
+                new_max = 0.7 * curr_max + 0.3 * new_max_delta
+                self.dynamic_preferred_delta_range = (new_min, new_max)
+
+            # Keep the range reasonable
+            self.dynamic_preferred_delta_range = (
+                max(-0.9, min(0.9, self.dynamic_preferred_delta_range[0])),
+                max(-0.9, min(0.9, self.dynamic_preferred_delta_range[1]))
+            )
+
+            # Ensure min < max
+            if self.dynamic_preferred_delta_range[0] >= self.dynamic_preferred_delta_range[1]:
+                # Reset to default if invalid
+                self.dynamic_preferred_delta_range = (0.4, 0.6)
 
     def generate_spread_signals(
         self,
@@ -123,7 +260,10 @@ class VerticalSpreadStrategy:
         # Get underlying signal
         underlying_signal = self.signal_generator.get_signal(market_data, current_date)
 
-        if underlying_signal is None or underlying_signal.signal_strength < 0.3:
+        # Use dynamic signal threshold based on historical performance
+        signal_threshold = self.dynamic_signal_threshold
+
+        if underlying_signal is None or underlying_signal.signal_strength < signal_threshold:
             logger.debug(f"Underlying signal too weak: {underlying_signal}")
             return signals
 
@@ -168,14 +308,15 @@ class VerticalSpreadStrategy:
             lambda x: (datetime.strptime(x, '%Y-%m-%d').date() - current_date).days
         )
 
-        # Filter to preferred DTE range
+        # Filter to preferred DTE range (using dynamic DTE selection)
+        preferred_dte = self._select_optimal_dte(market_data, option_chain, 'call')
         calls = calls[
-            calls['days_to_exp'].isin(self.preferred_dte) &
+            calls['days_to_exp'].isin(preferred_dte) &
             (calls['days_to_exp'] > 0)  # Not expired
         ]
 
         if calls.empty:
-            logger.debug(f"No calls found in preferred DTE range: {self.preferred_dte}")
+            logger.debug(f"No calls found in preferred DTE range: {preferred_dte}")
             return spread_signals
 
         # Get underlying price
@@ -185,7 +326,7 @@ class VerticalSpreadStrategy:
             return spread_signals
 
         # For each preferred DTE, find suitable strikes
-        for dte in self.preferred_dte:
+        for dte in preferred_dte:
             dte_calls = calls[calls['days_to_exp'] == dte].copy()
 
             if dte_calls.empty:
@@ -197,24 +338,66 @@ class VerticalSpreadStrategy:
             if len(available_strikes) < 2:
                 continue
 
-            # Try to find strikes within preferred delta range
-            # For simplicity, we'll use strikes near the money if Greeks not available
-            atm_strike = round(underlying_price)  # At-the-money strike
+            # Calculate deltas for available strikes using option pricing model
+            strike_deltas = []
+            for strike in available_strikes:
+                # Calculate delta for call option
+                try:
+                    # Use current date and days to expiration for time to expiry in years
+                    time_to_expiry = dte / 365.0
+                    # Calculate call delta
+                    call_delta = self.pricing_model.calculate_delta(
+                        underlying_price=underlying_price,
+                        strike_price=strike,
+                        time_to_expiry=time_to_expiry,
+                        volatility=0.2,  # Would use actual IV from option chain in practice
+                        option_type='call'
+                    )
+                    if call_delta is not None:
+                        strike_deltas.append((strike, call_delta))
+                except Exception as e:
+                    logger.debug(f"Could not calculate delta for strike {strike}: {e}")
+                    continue
 
-            # Generate candidate spreads from actual available strikes
-            for i, long_strike in enumerate(available_strikes):
+            # Sort strikes by delta
+            strike_deltas.sort(key=lambda x: x[1])
+
+            # Select strikes within preferred delta range for long leg
+            min_delta, max_delta = self.preferred_delta_range
+            suitable_long_strikes = [strike for strike, delta in strike_deltas
+                                   if min_delta <= delta <= max_delta]
+
+            # If no strikes in preferred range, expand search gradually
+            if not suitable_long_strikes:
+                # Try wider delta ranges based on signal strength
+                expansion_factor = 1.0 + (1.0 - signal.signal_strength) * 0.5  # More expansion for weaker signals
+                expanded_min = max(0.01, min_delta * expansion_factor)
+                expanded_max = min(0.99, max_delta * expansion_factor)
+
+                suitable_long_strikes = [strike for strike, delta in strike_deltas
+                                       if expanded_min <= delta <= expanded_max]
+
+                # If still none, take closest to preferred range
+                if not suitable_long_strikes and strike_deltas:
+                    # Find strike with delta closest to the preferred range midpoint
+                    target_delta = (min_delta + max_delta) / 2
+                    suitable_long_strikes = [min(strike_deltas, key=lambda x: abs(x[1] - target_delta))[0]]
+
+            # Generate candidate spreads from suitable long strikes
+            for long_strike in suitable_long_strikes:
                 # For bull call: long call (lower strike), short call (higher strike)
                 # We want: long_strike < short_strike
 
-                # Look for valid short strikes (higher strikes) in the remaining available strikes
-                for j in range(i + 1, len(available_strikes)):
-                    short_strike = available_strikes[j]
+                # Look for valid short strikes (higher strikes) in the available strikes
+                for short_strike in available_strikes:
+                    if short_strike <= long_strike:
+                        continue  # Need short strike > long strike for bull call
+
                     width = short_strike - long_strike
 
                     # Check if width is within acceptable range
                     if width > self.max_spread_width:
-                        # Since strikes are sorted, further strikes will only increase width
-                        break
+                        continue  # Try next short strike (strikes are sorted)
 
                     if width < 1.0:  # Minimum width check (avoid too narrow spreads)
                         continue
@@ -233,25 +416,52 @@ class VerticalSpreadStrategy:
 
                         # Only consider if it's a debit spread (we pay to enter)
                         if net_debit > 0:
-                            spread_signal = SpreadSignal(
-                                underlying_symbol=self.underlying_symbol,
-                                signal_type='bullish',
-                                signal_strength=signal.signal_strength,
-                                recommended_dte=[dte],
-                                recommended_delta_range=self.preferred_delta_range,
-                                spread_width_preference=f"{width}",
-                                timestamp=current_date
+                            # Calculate net return accounting for transaction costs and slippage
+                            net_return = self._calculate_net_return(
+                                width, net_debit, dte, is_bull_call=True
                             )
-                            # Store additional info in signal for later use
-                            spread_signal.__dict__.update({
-                                'long_strike': long_strike,
-                                'short_strike': short_strike,
-                                'option_type': 'call',
-                                'underlying_price': underlying_price,
-                                'net_debit': net_debit,
-                                'days_to_exp': dte
-                            })
-                            spread_signals.append(spread_signal)
+
+                            # Use dynamic return threshold
+                            if net_return >= self.dynamic_return_threshold:
+                                # Calculate actual deltas for the spread legs
+                                time_to_expiry = dte / 365.0
+                                long_delta = self.pricing_model.calculate_delta(
+                                    underlying_price=underlying_price,
+                                    strike_price=long_strike,
+                                    time_to_expiry=time_to_expiry,
+                                    volatility=0.2,
+                                    option_type='call'
+                                ) or 0.0
+                                short_delta = self.pricing_model.calculate_delta(
+                                    underlying_price=underlying_price,
+                                    strike_price=short_strike,
+                                    time_to_expiry=time_to_expiry,
+                                    volatility=0.2,
+                                    option_type='call'
+                                ) or 0.0
+
+                                spread_signal = SpreadSignal(
+                                    underlying_symbol=self.underlying_symbol,
+                                    signal_type='bullish',
+                                    signal_strength=signal.signal_strength,
+                                    recommended_dte=[dte],
+                                    recommended_delta_range=(long_delta, short_delta),
+                                    spread_width_preference=f"{width}",
+                                    timestamp=current_date
+                                )
+                                # Store additional info in signal for later use
+                                spread_signal.__dict__.update({
+                                    'long_strike': long_strike,
+                                    'short_strike': short_strike,
+                                    'option_type': 'call',
+                                    'underlying_price': underlying_price,
+                                    'net_debit': net_debit,
+                                    'days_to_exp': dte,
+                                    'expected_net_return': net_return,
+                                    'long_delta': long_delta,
+                                    'short_delta': short_delta
+                                })
+                                spread_signals.append(spread_signal)
 
         logger.info(f"Generated {len(spread_signals)} bull call spread signals")
         return spread_signals
@@ -281,14 +491,15 @@ class VerticalSpreadStrategy:
             lambda x: (datetime.strptime(x, '%Y-%m-%d').date() - current_date).days
         )
 
-        # Filter to preferred DTE range
+        # Filter to preferred DTE range (using dynamic DTE selection)
+        preferred_dte = self._select_optimal_dte(market_data, option_chain, 'put')
         puts = puts[
-            puts['days_to_exp'].isin(self.preferred_dte) &
+            puts['days_to_exp'].isin(preferred_dte) &
             (puts['days_to_exp'] > 0)  # Not expired
         ]
 
         if puts.empty:
-            logger.debug(f"No puts found in preferred DTE range: {self.preferred_dte}")
+            logger.debug(f"No puts found in preferred DTE range: {preferred_dte}")
             return spread_signals
 
         # Get underlying price
@@ -298,7 +509,7 @@ class VerticalSpreadStrategy:
             return spread_signals
 
         # For each preferred DTE, find suitable strikes
-        for dte in self.preferred_dte:
+        for dte in preferred_dte:
             dte_puts = puts[puts['days_to_exp'] == dte].copy()
 
             if dte_puts.empty:
@@ -310,23 +521,71 @@ class VerticalSpreadStrategy:
             if len(available_strikes) < 2:
                 continue
 
-            # Try to find strikes within preferred delta range
-            atm_strike = round(underlying_price)  # At-the-money strike
+            # Calculate deltas for available strikes using option pricing model
+            strike_deltas = []
+            for strike in available_strikes:
+                # Calculate delta for put option
+                try:
+                    # Use current date and days to expiration for time to expiry in years
+                    time_to_expiry = dte / 365.0
+                    # Calculate put delta (negative for puts)
+                    put_delta = self.pricing_model.calculate_delta(
+                        underlying_price=underlying_price,
+                        strike_price=strike,
+                        time_to_expiry=time_to_expiry,
+                        volatility=0.2,  # Would use actual IV from option chain in practice
+                        option_type='put'
+                    )
+                    if put_delta is not None:
+                        strike_deltas.append((strike, put_delta))
+                except Exception as e:
+                    logger.debug(f"Could not calculate delta for strike {strike}: {e}")
+                    continue
 
-            # Generate candidate spreads from actual available strikes
-            for i, long_strike in enumerate(available_strikes):
+            # Sort strikes by delta (put deltas are negative, so more negative = higher strike)
+            strike_deltas.sort(key=lambda x: x[1], reverse=True)  # Descending order for puts
+
+            # Select strikes within preferred delta range for long leg
+            # For puts, we typically want negative deltas (e.g., -0.4 to -0.6)
+            min_delta, max_delta = self.preferred_delta_range
+            # Convert to put delta range (negative values)
+            put_min_delta = -abs(max_delta)  # More negative
+            put_max_delta = -abs(min_delta)  # Less negative
+
+            suitable_long_strikes = [strike for strike, delta in strike_deltas
+                                   if put_min_delta <= delta <= put_max_delta]
+
+            # If no strikes in preferred range, expand search gradually
+            if not suitable_long_strikes:
+                # Try wider delta ranges based on signal strength
+                expansion_factor = 1.0 + (1.0 - signal.signal_strength) * 0.5  # More expansion for weaker signals
+                expanded_min = max(-0.99, put_min_delta * expansion_factor)
+                expanded_max = min(-0.01, put_max_delta * expansion_factor)
+
+                suitable_long_strikes = [strike for strike, delta in strike_deltas
+                                       if expanded_min <= delta <= expanded_max]
+
+                # If still none, take closest to preferred range
+                if not suitable_long_strikes and strike_deltas:
+                    # Find strike with delta closest to the preferred range midpoint
+                    target_delta = (put_min_delta + put_max_delta) / 2
+                    suitable_long_strikes = [min(strike_deltas, key=lambda x: abs(x[1] - target_delta))[0]]
+
+            # Generate candidate spreads from suitable long strikes
+            for long_strike in suitable_long_strikes:
                 # For bear put: long put (higher strike), short put (lower strike)
                 # We want: long_strike > short_strike
 
-                # Look for valid short strikes (lower strikes) in the earlier available strikes
-                for j in range(i):
-                    short_strike = available_strikes[j]
+                # Look for valid short strikes (lower strikes) in the available strikes
+                for short_strike in available_strikes:
+                    if short_strike >= long_strike:
+                        continue  # Need short strike < long strike for bear put
+
                     width = long_strike - short_strike
 
                     # Check if width is within acceptable range
                     if width > self.max_spread_width:
-                        # Since we're going backwards in strikes, further decreases will only increase width
-                        continue
+                        continue  # Try next short strike
 
                     if width < 1.0:  # Minimum width check (avoid too narrow spreads)
                         continue
@@ -345,28 +604,152 @@ class VerticalSpreadStrategy:
 
                         # Only consider if it's a debit spread
                         if net_debit > 0:
-                            spread_signal = SpreadSignal(
-                                underlying_symbol=self.underlying_symbol,
-                                signal_type='bearish',
-                                signal_strength=signal.signal_strength,
-                                recommended_dte=[dte],
-                                recommended_delta_range=self.preferred_delta_range,
-                                spread_width_preference=f"{width}",
-                                timestamp=current_date
+                            # Calculate net return accounting for transaction costs and slippage
+                            net_return = self._calculate_net_return(
+                                width, net_debit, dte, is_bull_call=False
                             )
-                            # Store additional info in signal for later use
-                            spread_signal.__dict__.update({
-                                'long_strike': long_strike,
-                                'short_strike': short_strike,
-                                'option_type': 'put',
-                                'underlying_price': underlying_price,
-                                'net_debit': net_debit,
-                                'days_to_exp': dte
-                            })
-                            spread_signals.append(spread_signal)
+
+                            # Use dynamic return threshold
+                            if net_return >= self.dynamic_return_threshold:
+                                # Calculate actual deltas for the spread legs
+                                time_to_expiry = dte / 365.0
+                                long_delta = self.pricing_model.calculate_delta(
+                                    underlying_price=underlying_price,
+                                    strike_price=long_strike,
+                                    time_to_expiry=time_to_expiry,
+                                    volatility=0.2,
+                                    option_type='put'
+                                ) or 0.0
+                                short_delta = self.pricing_model.calculate_delta(
+                                    underlying_price=underlying_price,
+                                    strike_price=short_strike,
+                                    time_to_expiry=time_to_expiry,
+                                    volatility=0.2,
+                                    option_type='put'
+                                ) or 0.0
+
+                                spread_signal = SpreadSignal(
+                                    underlying_symbol=self.underlying_symbol,
+                                    signal_type='bearish',
+                                    signal_strength=signal.signal_strength,
+                                    recommended_dte=[dte],
+                                    recommended_delta_range=(long_delta, short_delta),
+                                    spread_width_preference=f"{width}",
+                                    timestamp=current_date
+                                )
+                                # Store additional info in signal for later use
+                                spread_signal.__dict__.update({
+                                    'long_strike': long_strike,
+                                    'short_strike': short_strike,
+                                    'option_type': 'put',
+                                    'underlying_price': underlying_price,
+                                    'net_debit': net_debit,
+                                    'days_to_exp': dte,
+                                    'expected_net_return': net_return,
+                                    'long_delta': long_delta,
+                                    'short_delta': short_delta
+                                })
+                                spread_signals.append(spread_signal)
 
         logger.info(f"Generated {len(spread_signals)} bear put spread signals")
         return spread_signals
+
+    def _select_optimal_dte(self, market_data: pd.DataFrame, option_chain: pd.DataFrame,
+                           option_type: str) -> List[int]:
+        """Select optimal DTE based on market conditions and historical performance.
+
+        Args:
+            market_data: Market data DataFrame
+            option_chain: Option chain data
+            option_type: Type of option ('call' or 'put')
+
+        Returns:
+            List of optimal DTE values
+        """
+        # Default DTEs if we can't determine optimal ones
+        default_dtes = [21, 30, 45, 60]
+
+        if len(self.performance_history) < 10:
+            return default_dtes
+
+        # Analyze performance by DTE
+        dte_performance = {}
+        for trade in self.performance_history[-30:]:  # Last 30 trades
+            dte = trade.get('days_to_expiration', 0)
+            profit = trade.get('profit_loss', 0)
+            if dte > 0:
+                if dte not in dte_performance:
+                    dte_performance[dte] = []
+                dte_performance[dte].append(profit)
+
+        # Calculate average profit for each DTE with sufficient samples
+        dte_avg_profit = {}
+        for dte, profits in dte_performance.items():
+            if len(profits) >= 3:  # Minimum samples
+                dte_avg_profit[dte] = np.mean(profits)
+
+        if not dte_avg_profit:
+            return default_dtes
+
+        # Select top 3 performing DTEs
+        sorted_dtes = sorted(dte_avg_profit.items(), key=lambda x: x[1], reverse=True)
+        top_dtes = [dte for dte, _ in sorted_dtes[:3]]
+
+        # Ensure we have reasonable DTE distribution
+        if len(top_dtes) < 2:
+            # Fill with defaults if needed
+            for dte in default_dtes:
+                if dte not in top_dtes:
+                    top_dtes.append(dte)
+                    if len(top_dtes) >= 3:
+                        break
+
+        return sorted(top_dtes[:3])  # Return sorted top 3
+
+    def _calculate_net_return(self, width: float, debit: float, dte: int,
+                            is_bull_call: bool = True) -> float:
+        """Calculate net return accounting for transaction costs, slippage, and time decay.
+
+        Args:
+            width: Spread width in dollars
+            debit: Debit paid for the spread
+            dte: Days to expiration
+            is_bull_call: True for bull call spread, False for bear put spread
+
+        Returns:
+            Expected net return as a decimal (e.g., 0.15 for 15%)
+        """
+        if debit <= 0 or width <= 0:
+            return 0.0
+
+        # Gross return for the spread
+        if is_bull_call:
+            # Bull call: max profit = width - debit, max loss = debit
+            gross_return = (width - debit) / debit if debit > 0 else 0
+        else:
+            # Bear put: same calculation structure
+            gross_return = (width - debit) / debit if debit > 0 else 0
+
+        # Adjust for probability of profit based on width/debit ratio
+        # Higher width/debit ratio = higher probability of profit
+        width_debit_ratio = width / debit if debit > 0 else 0
+        # Probability estimate: 0.5 + 0.4 * (width_debit_ratio - 1) / (width_debit_ratio + 1)
+        # This gives probability between 0.1 and 0.9 for reasonable width/debit ratios
+        probability_factor = min(0.9, max(0.1, 0.5 + 0.4 * (width_debit_ratio - 1) / (width_debit_ratio + 1)))
+
+        # Time decay factor (theta) - higher for shorter DTE
+        # Approximate daily theta as 0.03 * sqrt(debit) for ATM spreads
+        daily_theta_estimate = 0.03 * np.sqrt(debit) if debit > 0 else 0
+        time_decay_factor = np.exp(-daily_theta_estimate * dte / 100)  # Convert to percentage
+
+        # Transaction costs and slippage estimate
+        # Approximate round-trip cost as 2% of spread width
+        transaction_cost_factor = 1.0 - (0.02 * width / debit) if debit > 0 else 0
+
+        # Combine factors
+        net_return = gross_return * probability_factor * time_decay_factor * transaction_cost_factor
+
+        return max(-1.0, net_return)  # Cap losses at 100% for safety
 
     def _get_underlying_price(
         self,
@@ -442,31 +825,33 @@ class VerticalSpreadStrategy:
         option_type = getattr(signal, 'option_type', None)
         net_debit = getattr(signal, 'net_debit', None)
         days_to_exp = getattr(signal, 'days_to_exp', None)
+        expected_net_return = getattr(signal, 'expected_net_return', None)
 
         if None in [long_strike, short_strike, option_type, net_debit, days_to_exp]:
             logger.error("Missing required signal information to create spread")
             return None
 
-        # Calculate maximum risk allowed for this trade
-        max_risk_dollars = portfolio_value * self.max_risk_per_trade
-
-        # Calculate quantity based on risk
+        # Calculate risk per spread (debit paid for the spread)
         risk_per_spread = net_debit * 100  # Cost per spread (1 contract each leg)
         if risk_per_spread <= 0:
             logger.error(f"Invalid risk per spread: {risk_per_spread}")
             return None
 
-        max_quantity = int(max_risk_dollars / risk_per_spread)
+        # Use RiskManager for position sizing
+        position_sizing = self.risk_manager.calculate_position_size(
+            portfolio_value=portfolio_value,
+            risk_per_unit=risk_per_spread,
+            max_risk_per_trade=self.max_risk_per_trade
+        )
 
-        if max_quantity < 1:
-            logger.warning(f"Calculated quantity is less than 1: {max_quantity}")
+        quantity = position_sizing.quantity
+
+        if quantity < 1:
+            logger.warning(f"Not enough capital for even 1 vertical spread: need ${risk_per_spread:.2f}")
             return None
 
-        # Use minimum of 1 contract or calculated max (respecting max_contracts_per_trade limit)
-        quantity = max(1, min(max_quantity, self.max_contracts_per_trade))
-
         # Calculate actual risk
-        actual_risk = quantity * net_debit * 100
+        actual_risk = quantity * risk_per_spread
 
         # Create the spread
         spread = VerticalSpread(

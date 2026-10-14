@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 
 from trading_bot.strategies.option_pricing import OptionPricingModel
 from trading_bot.strategies.signals import SignalGenerator
+from trading_bot.risk_management import RiskManager
 
 logger = logging.getLogger(__name__)
 
@@ -95,6 +96,7 @@ class IronCondorStrategy:
         self.risk_free_rate = risk_free_rate
         self.max_contracts_per_trade = max_contracts_per_trade
         self.pricing_model = OptionPricingModel(risk_free_rate)
+        self.risk_manager = RiskManager(risk_free_rate)
 
         logger.info(f"Iron condor strategy initialized for {underlying_symbol}")
 
@@ -293,6 +295,34 @@ class IronCondorStrategy:
                 calls, call_wing['long_strike'], 'call', dte
             )
 
+            # Get volatility data (using the average of the four options)
+            put_long_vol = puts.loc[
+                abs(puts['strike_price'] - put_wing['long_strike']) < 0.25, 'implied_volatility'
+            ].iloc[0] if not puts.loc[
+                abs(puts['strike_price'] - put_wing['long_strike']) < 0.25
+            ].empty else 0.25
+
+            put_short_vol = puts.loc[
+                abs(puts['strike_price'] - put_wing['short_strike']) < 0.25, 'implied_volatility'
+            ].iloc[0] if not puts.loc[
+                abs(puts['strike_price'] - put_wing['short_strike']) < 0.25
+            ].empty else 0.25
+
+            call_short_vol = calls.loc[
+                abs(calls['strike_price'] - call_wing['short_strike']) < 0.25, 'implied_volatility'
+            ].iloc[0] if not calls.loc[
+                abs(calls['strike_price'] - call_wing['short_strike']) < 0.25
+            ].empty else 0.25
+
+            call_long_vol = calls.loc[
+                abs(calls['strike_price'] - call_wing['long_strike']) < 0.25, 'implied_volatility'
+            ].iloc[0] if not calls.loc[
+                abs(calls['strike_price'] - call_wing['long_strike']) < 0.25
+            ].empty else 0.25
+
+            # Use average volatility for Greeks calculation
+            volatility = (put_long_vol + put_short_vol + call_short_vol + call_long_vol) / 4
+
             if None in [put_long_mid, put_short_mid, call_short_mid, call_long_mid]:
                 logger.debug("Could not get mid prices for all legs")
                 return None
@@ -305,8 +335,37 @@ class IronCondorStrategy:
                 logger.debug(f"Invalid net credit for iron condor: {net_credit}")
                 return None
 
+            # Calculate time to expiry in years
+            time_to_expiry = dte / 365.0
+
+            # Calculate Greeks for the iron condor position
+            greeks = self._calculate_iron_condor_greeks(
+                underlying_price=underlying_price,
+                time_to_expiry=time_to_expiry,
+                volatility=volatility,
+                put_long_strike=put_wing['long_strike'],
+                put_short_strike=put_wing['short_strike'],
+                call_short_strike=call_wing['short_strike'],
+                call_long_strike=call_wing['long_strike'],
+                quantity=1  # Calculate per spread, then multiply by quantity later
+            )
+
+            # Greeks-based filtering for iron condor:
+            # We want: positive theta (time decay works for us), negative vega (benefit from decreasing vol), low delta
+            if greeks['theta'] <= 0:
+                logger.debug(f"Iron condor theta not positive: {greeks['theta']:.4f}")
+                return None
+
+            if greeks['vega'] >= 0:  # We prefer negative vega
+                logger.debug(f"Iron condor vega not negative: {greeks['vega']:.4f}")
+                return None
+
+            if abs(greeks['delta']) > 0.1:  # Keep delta low
+                logger.debug(f"Iron condor delta too high: {abs(greeks['delta']):.4f}")
+                return None
+
         except Exception as e:
-            logger.debug(f"Error calculating iron condor pricing: {e}")
+            logger.debug(f"Error calculating iron condor pricing or Greeks: {e}")
             return None
 
         # Create signal
@@ -400,9 +459,6 @@ class IronCondorStrategy:
         call_long_strike = signal['call_long_strike']
         net_credit = signal['net_credit']
 
-        # Calculate maximum risk allowed for this trade
-        max_risk_dollars = portfolio_value * self.max_risk_per_trade
-
         # Calculate width of the spreads (should be equal for standard iron condor)
         put_width = abs(put_short_strike - put_long_strike)
         call_width = abs(call_long_strike - call_short_strike)
@@ -415,15 +471,18 @@ class IronCondorStrategy:
             logger.error(f"Invalid risk per iron condor: {risk_per_condor}")
             return None
 
-        # Calculate maximum number of condors we can trade
-        max_conductors = int(max_risk_dollars / risk_per_condor)
+        # Use RiskManager for position sizing
+        position_sizing = self.risk_manager.calculate_position_size(
+            portfolio_value=portfolio_value,
+            risk_per_unit=risk_per_condor,
+            max_risk_per_trade=self.max_risk_per_trade
+        )
 
-        if max_conductors < 1:
+        quantity = position_sizing.quantity
+
+        if quantity < 1:
             logger.warning(f"Not enough capital for even 1 iron condor: need ${risk_per_condor:.2f}")
             return None
-
-        # Use maximum contracts we can afford (respecting max_contracts_per_trade limit)
-        quantity = min(max_conductors, self.max_contracts_per_trade)
 
         # Calculate actual risk
         actual_risk = quantity * risk_per_condor
@@ -576,6 +635,117 @@ class IronCondorStrategy:
         except (KeyError, IndexError, ValueError):
             logger.warning("Could not extract underlying price from market data")
             return None
+
+    def _calculate_iron_condor_greeks(
+        self,
+        underlying_price: float,
+        time_to_expiry: float,
+        volatility: float,
+        put_long_strike: float,
+        put_short_strike: float,
+        call_short_strike: float,
+        call_long_strike: float,
+        quantity: int
+    ) -> Dict[str, float]:
+        """
+        Calculate Greeks for an iron condor position.
+
+        Iron condor: +1 put_long (K1), -1 put_short (K2), -1 call_short (K3), +1 call_long (K4)
+
+        Args:
+            underlying_price: Current price of the underlying asset
+            time_to_expiry: Time to expiration in years
+            volatility: Implied volatility of the underlying
+            put_long_strike: Strike price of long put (K1)
+            put_short_strike: Strike price of short put (K2)
+            call_short_strike: Strike price of short call (K3)
+            call_long_strike: Strike price of long call (K4)
+            quantity: Number of iron condor contracts
+
+        Returns:
+            Dictionary containing position Greeks (delta, gamma, theta, vega, rho)
+        """
+        # Calculate Greeks for each leg
+        # Long put (K1): +quantity
+        put_long_greeks = self.risk_manager.calculate_option_risk_metrics(
+            underlying_price=underlying_price,
+            strike_price=put_long_strike,
+            time_to_expiry=time_to_expiry,
+            volatility=volatility,
+            option_type='put'
+        )
+
+        # Short put (K2): -quantity
+        put_short_greeks = self.risk_manager.calculate_option_risk_metrics(
+            underlying_price=underlying_price,
+            strike_price=put_short_strike,
+            time_to_expiry=time_to_expiry,
+            volatility=volatility,
+            option_type='put'
+        )
+
+        # Short call (K3): -quantity
+        call_short_greeks = self.risk_manager.calculate_option_risk_metrics(
+            underlying_price=underlying_price,
+            strike_price=call_short_strike,
+            time_to_expiry=time_to_expiry,
+            volatility=volatility,
+            option_type='call'
+        )
+
+        # Long call (K4): +quantity
+        call_long_greeks = self.risk_manager.calculate_option_risk_metrics(
+            underlying_price=underlying_price,
+            strike_price=call_long_strike,
+            time_to_expiry=time_to_expiry,
+            volatility=volatility,
+            option_type='call'
+        )
+
+        # Combine Greeks for the iron condor position
+        # Remember: short positions have negative Greeks
+        position_delta = (
+            put_long_greeks.delta * quantity +
+            (-put_short_greeks.delta) * quantity +
+            (-call_short_greeks.delta) * quantity +
+            call_long_greeks.delta * quantity
+        )
+
+        position_gamma = (
+            put_long_greeks.gamma * quantity +
+            (-put_short_greeks.gamma) * quantity +
+            (-call_short_greeks.gamma) * quantity +
+            call_long_greeks.gamma * quantity
+        )
+
+        position_theta = (
+            put_long_greeks.theta * quantity +
+            (-put_short_greeks.theta) * quantity +
+            (-call_short_greeks.theta) * quantity +
+            call_long_greeks.theta * quantity
+        )
+
+        position_vega = (
+            put_long_greeks.vega * quantity +
+            (-put_short_greeks.vega) * quantity +
+            (-call_short_greeks.vega) * quantity +
+            call_long_greeks.vega * quantity
+        )
+
+        position_rho = (
+            put_long_greeks.rho * quantity +
+            (-put_short_greeks.rho) * quantity +
+            (-call_short_greeks.rho) * quantity +
+            call_long_greeks.rho * quantity
+        )
+
+        return {
+            'delta': position_delta,
+            'gamma': position_gamma,
+            'theta': position_theta,
+            'vega': position_vega,
+            'rho': position_rho
+        }
 
     def _calculate_iron_condor_expiration(
         self,

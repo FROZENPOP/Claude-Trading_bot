@@ -2,7 +2,7 @@
 
 import pandas as pd
 import numpy as np
-from typing import Optional
+from typing import Optional, Dict, Any
 import logging
 from dataclasses import dataclass
 from datetime import datetime
@@ -25,6 +25,122 @@ class SignalGenerator:
     def __init__(self):
         """Initialize signal generator."""
         logger.info("Signal generator initialized")
+
+        # Performance tracking for dynamic threshold adjustment
+        self.performance_history = []
+        self.dynamic_weak_threshold = 0.3  # Will be adjusted based on performance
+        self.market_regime = "unknown"  # Will be updated based on market conditions
+
+    def update_performance_metrics(self, signal_result: Dict[str, Any], market_data: Optional[pd.DataFrame] = None):
+        """Update performance metrics for dynamic threshold adjustment.
+
+        Args:
+            signal_result: Dictionary containing signal performance data
+            market_data: Optional market data to determine regime
+        """
+        self.performance_history.append(signal_result)
+        # Keep only last 100 signals for memory efficiency
+        if len(self.performance_history) > 100:
+            self.performance_history = self.performance_history[-100:]
+
+        # Update market regime if data provided
+        if market_data is not None and not market_data.empty:
+            self._update_market_regime(market_data)
+
+        # Adjust weak signal threshold based on recent performance
+        self._adjust_weak_threshold()
+
+    def _update_market_regime(self, market_data: pd.DataFrame):
+        """Update market regime classification based on recent price action.
+
+        Args:
+            market_data: Market data DataFrame
+        """
+        if len(market_data) < 20:
+            return
+
+        # Calculate volatility and trend metrics
+        returns = market_data['adjusted_close'].pct_change().dropna()
+        if len(returns) < 10:
+            return
+
+        volatility = returns.rolling(window=10).std().iloc[-1] * np.sqrt(252)  # Annualized
+        trend = (market_data['adjusted_close'].iloc[-1] / market_data['adjusted_close'].iloc[-10] - 1) if len(market_data) >= 10 else 0
+
+        # Classify regime
+        if volatility > 0.3:  # High volatility
+            if abs(trend) < 0.05:  # Sideways
+                self.market_regime = "high_volatility_sideways"
+            elif trend > 0.05:  # Uptrend
+                self.market_regime = "high_volatility_uptrend"
+            else:  # Downtrend
+                self.market_regime = "high_volatility_downtrend"
+        else:  # Low volatility
+            if abs(trend) < 0.05:  # Sideways
+                self.market_regime = "low_volatility_sideways"
+            elif trend > 0.05:  # Uptrend
+                self.market_regime = "low_volatility_uptrend"
+            else:  # Downtrend
+                self.market_regime = "low_volatility_downtrend"
+
+    def _adjust_weak_threshold(self):
+        """Dynamically adjust weak signal threshold based on historical performance."""
+        if len(self.performance_history) < 20:  # Need minimum samples
+            return
+
+        # Get recent signals (last 30 or all if fewer)
+        recent_signals = self.performance_history[-30:] if len(self.performance_history) >= 15 else self.performance_history
+
+        # Separate signals that led to profitable trades vs unprofitable trades
+        # This assumes signal_result contains trade outcome information
+        profitable_signals = [s for s in recent_signals if s.get('trade_profitable', False)]
+        unprofitable_signals = [s for s in recent_signals if not s.get('trade_profitable', True)]
+
+        if profitable_signals and unprofitable_signals:
+            avg_profitable_strength = np.mean([s.get('signal_strength', 0) for s in profitable_signals])
+            avg_unprofitable_strength = np.mean([s.get('signal_strength', 0) for s in unprofitable_signals])
+
+            # If profitable signals have significantly higher strength, we can adjust threshold
+            strength_separation = avg_profitable_strength - avg_unprofitable_strength
+
+            # Base threshold on the separation and overall win rate
+            win_rate = len(profitable_signals) / len(recent_signals) if recent_signals else 0.5
+
+            # If we have good separation, set threshold between the averages
+            if strength_separation > 0.1:  # Good separation
+                # Set threshold at 25% of the way from unprofitable to profitable average
+                dynamic_threshold = avg_unprofitable_strength + (strength_separation * 0.25)
+            else:
+                # Poor separation, use win rate to determine threshold
+                # Higher win rate = lower threshold (we can be more selective)
+                dynamic_threshold = 0.5 - (win_rate - 0.5) * 0.4  # Scale 0.3-0.7 based on win rate
+
+            # Apply regime-based adjustments
+            regime_multiplier = self._get_regime_threshold_multiplier()
+            dynamic_threshold *= regime_multiplier
+
+            # Bound the threshold reasonably and smooth the adjustment
+            dynamic_threshold = max(0.1, min(0.5, dynamic_threshold))
+            self.dynamic_weak_threshold = 0.7 * self.dynamic_weak_threshold + 0.3 * dynamic_threshold
+
+    def _get_regime_threshold_multiplier(self) -> float:
+        """Get threshold multiplier based on current market regime.
+
+        Returns:
+            Multiplier to apply to base weak threshold
+        """
+        # In volatile markets, we want higher thresholds to avoid noise
+        # In calm markets, we can use lower thresholds to catch more signals
+        regime_multipliers = {
+            "high_volatility_sideways": 1.2,   # Higher threshold needed in choppy markets
+            "high_volatility_uptrend": 1.1,    # Moderately higher
+            "high_volatility_downtrend": 1.3,  # Much higher to avoid false signals
+            "low_volatility_sideways": 0.9,    # Lower threshold okay in calm markets
+            "low_volatility_uptrend": 0.95,    # Slightly lower
+            "low_volatility_downtrend": 0.9,   # Lower threshold
+            "unknown": 1.0
+        }
+        return regime_multipliers.get(self.market_regime, 1.0)
 
     def get_signal(self, market_data: pd.DataFrame, current_date: datetime) -> Optional[Signal]:
         """Generate a trading signal from market data.
@@ -377,8 +493,8 @@ class SignalGenerator:
             final_type = 'neutral'
             final_strength = max(neutral_score, 0.1)  # Ensure minimum strength for neutral
 
-        # Adjust for weak signals
-        if final_strength < 0.3:
+        # Adjust for weak signals using dynamic threshold
+        if final_strength < self.dynamic_weak_threshold:
             if final_type == 'bullish':
                 final_type = 'weak_bullish'
             elif final_type == 'bearish':
